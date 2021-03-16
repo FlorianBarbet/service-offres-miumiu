@@ -1,0 +1,76 @@
+{
+  "name": "offre",
+  "version": "0.0.1",
+  "description": "Service offre to DevHouse App",
+  "license": "MPL-2.0",
+  "scripts": {
+    "start": "esy x offre",
+    "test": "esy x test-offre"
+  },
+  "dependencies": {
+    
+   
+    "@opam/caqti": "1.2.3",
+    "@opam/caqti-driver-postgresql": "1.2.4",
+    "@opam/caqti-lwt": "1.2.0",
+    "@opam/emile": "1.1",
+    "@opam/logs": "0.7.0",
+    "ocaml": "~4.8",
+    "@opam/opium": "0.19.0",
+    "@opam/ppx_deriving": "4.5",
+    "@opam/ppx_deriving_yojson": "3.5.3",
+    "@opam/ppx_rapper": "1.1.0",
+    "@opam/ocamlfind":"1.8.1",
+    "@opam/ctypes":"0.17.1",
+    "@opam/ctypes-foreign":"0.4.0",
+    "@opam/safepass": "2.0"
+  },
+  "devDependencies": {
+    "@opam/dune": ">=2.7",
+    "@pesy/esy-pesy": "0.1.0-alpha.11",
+    "@opam/ocamlformat": "*",
+    "@opam/ocaml-lsp-server": "*"
+  },
+  "esy": {
+    "build": "dune build -p #{self.name}",
+    "buildDev": "pesy build",
+    "release": {
+      "releasedBinaries": [
+        "offre"
+      ]
+    }
+  },
+  "buildDirs": {
+    "lib": {
+      "namespace": "Offre",
+      "name": "offre.lib",
+      "preprocess": [
+        "pps",
+        "ppx_deriving.std",
+        "ppx_deriving.enum",
+        "ppx_deriving.show",
+        "ppx_deriving_yojson",
+        "ppx_rapper"
+      ],
+      "require": [
+        "emile",
+        "safepass",
+        "caqti",
+        "caqti-lwt",
+        "caqti-driver-postgresql",
+        "ppx_rapper.runtime",
+        "opium",
+        "logs"
+      ]
+    },
+    "bin": {
+      "main": "server",
+      "bin": "server.ml",
+      "name": "offre",
+      "require": [
+        "offre.lib",
+        "opium"
+      ]
+    }
+  }
+}
