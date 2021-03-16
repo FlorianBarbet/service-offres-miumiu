@@ -149,7 +149,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
             WHERE id = %int{id}
            |sql}]
 
-    let delete = 
+    let delete = (* a transformer en soft delete*)
       connection
       |> [%rapper
         execute

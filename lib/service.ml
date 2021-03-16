@@ -23,21 +23,26 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
         | Error result -> 
           let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to create entreprise")
 
-  let create ?id ?duree ~titre ~description ~created_at_str ~end_at_str ~entreprise ~contrat ~contact   =
+  let create ?id ?duree ~titre ~description ~created_at_str ~end_at_str ~entreprise ~contrat ~contact_str   =
     let created_at = Date.of_string created_at_str 
-    and end_at = Date.of_string end_at_str in
-      let open Lwt in
-      OffreRepository.create ~id ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ~duree
-      >>= (function
+    and end_at = Date.of_string end_at_str
+   in
+      match D.Email.make contact_str with
+      | Error e -> Lwt.return_error e
+      | Ok contact -> 
+        let open Lwt in
+
+        (OffreRepository.create ~id ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ~duree
+        >>= (function
           | Ok db_result -> Lwt.return_ok ()
           | Error result -> 
-            let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to create offre")
+            let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to create offre"))
 
   let get_by_id ~id =
     let open Lwt in
     OffreRepository.get_by_id ~id
     >>= (function
-    | Ok db_result -> Lwt.return_ok ( db_result )
+    | Ok db_result -> Lwt.return_ok (D.Offre.to_yojson db_result )
     | Error result -> 
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 
@@ -65,4 +70,12 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
             let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to update offre")
       )
 
+
+  let delete ~id =
+    let open Lwt in
+      OffreRepository.delete ~id
+      >>= (function
+      | Ok db_result -> Lwt.return_ok ()
+      | Error result -> 
+        let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to delete")
 end

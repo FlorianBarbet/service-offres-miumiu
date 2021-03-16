@@ -54,7 +54,7 @@ head : {"jwt":"Un token valide"}
 
 # Afficher liste des offres actives pour une ville
 
-GET /offre/:ville
+GET /offre/list/:ville
 
 response: 
 [{
@@ -84,7 +84,7 @@ response:
 
 # Afficher le detail d'une offre
 
-GET /offre/:id_offre
+GET /offre/detail/:id_offre
  
 response: 
 {
