@@ -97,13 +97,16 @@ let list_of_date l =
     
 let make date = if day_validator date then Some date else None
 
-let of_string str = str |> String.split_on_char '-' |> List.map int_of_string |> list_of_date
+let of_string str = let _ = print_endline str in str |> String.split_on_char '-' |> List.map int_of_string |> list_of_date
 
 let string_of_date date = 
   let dd = string_of_int @@ date.day
   and mm = string_of_int @@ int_of_month_types @@ date.month
   and yyyy = string_of_int @@ date.year in
-    dd^"-"^mm^"-"^yyyy
+  let mm = match String.length mm with 
+            | e when e < 2 -> "0"^mm
+            | _ -> mm in
+    yyyy^"-"^mm^"-"^dd
 let show = string_of_date
 let pp ppf date = Format.pp_print_string ppf (show date)
 

@@ -15,8 +15,7 @@ module type OFFRE = sig
       -> (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val create_entreprise : 
-        id : int option
-    -> libelle : string
+       libelle : string
     -> description : string
     -> numero : string
     -> rue : string
@@ -25,8 +24,7 @@ module type OFFRE = sig
     -> (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val create :
-       id : int option
-    -> titre : string
+       titre : string
     -> description : string
     -> created_at : Date.t
     -> end_at : Date.t
@@ -80,7 +78,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       Caqti_type.(custom ~encode ~decode string)
   end
 
-
+(**)
   module Entreprise = struct
     type t = D.Entreprise.t
     let t = 
@@ -115,10 +113,14 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |> [%rapper
            execute
           {sql|
-          INSERT INTO "Entreprise" (id, libelle, description, numero, rue, code_postal, ville) 
-          VALUES  (%int?{id}, %string{libelle}, %string{description}, 
-                  %string{numero}, %string{rue}, 
-                  %int{code_postal}, %string{ville})
+          INSERT INTO "Entreprise" ( libelle, description, numero, rue, code_postal, ville) 
+          VALUES  (
+                   %string{libelle}, 
+                   %string{description}, 
+                   %string{numero}, 
+                   %string{rue}, 
+                   %int{code_postal}, 
+                   %string{ville})
           |sql}]
 
     let create =
@@ -126,11 +128,16 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |> [%rapper
            execute
           {sql|
-          INSERT INTO "Offre" (id, titre, description, created_at, end_at, id_entreprise, type_contrat, contact, duree) 
-          VALUES  (%int?{id}, %string{titre}, %string{description}, 
-                  %Date{created_at}, %Date{end_at}, 
-                  %int{entreprise}, %string{contrat}, 
-                  %Email{contact}, %int?{duree})
+          INSERT INTO "Offre" ( titre, description, created_at, end_at, id_entreprise, type_contrat, contact, duree) 
+          VALUES  (
+                   %string{titre}, 
+                   %string{description}, 
+                   %Date{created_at}, 
+                   %Date{end_at}, 
+                   %int{entreprise}, 
+                   %string{contrat}, 
+                   %Email{contact}, 
+                   %int?{duree})
           |sql}]
 
     let update = 
@@ -138,7 +145,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |> [%rapper
            execute
            {sql|
-            UPDATE "Offre" SET titre=%string{titre},
+            UPDATE "Offre" SET titre = %string{titre},
                               description = %string{description}, 
                               created_at = %Date{created_at}, 
                               end_at = %Date{end_at}, 
@@ -153,10 +160,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       connection
       |> [%rapper
         execute
-        {sql|
-          DELETE FROM "Offre" 
-          WHERE id = %int{id}
-        |sql}]
+        {sql| DELETE FROM "Offre" WHERE id = %int{id} |sql}]
 
     let get_by_id = 
       connection
@@ -164,19 +168,36 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       let open D.Offre in
       [%rapper get_one
         {sql|
-          SELECT @int?{id}, @string{titre}, @string{description}, 
-            @Date{created_at}, @Date{end_at},
-            @Entreprise{entreprise},
-            @Contrat{contrat},
-            @Email{contact},
-            @int?{duree}
-          FROM "Offre" off
-          JOIN "Entreprise" ent ON ent.id = off.id_entreprise
-          JOIN "Contrat" con ON con.sigle = off.type_contrat
-          WHERE id = %int{id}
+          SELECT offre.@int?{id}, 
+                 offre.@string{titre},
+                 offre.@string{description}, 
+                 offre.@Date{created_at}, 
+                 offre.@Date{end_at},
+                 
+                 @Entreprise{entreprise},
+                 @Contrat{contrat},
+                 offre.@Email{contact},
+                 offre.@int?{duree}
+          FROM "Offre" offre
+          JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
+          JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
+          WHERE offre.id = %int{id}
         |sql} 
         record_out]
+         (* fun ~id 
+         ~titre 
+         ~description 
+         ~created_at 
+         ~end_at 
+         ~entreprise 
+         ~contrat 
+         ~contact 
+         ~duree 
+         -> Ok (D.Offre.make ~id ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ?duree ())*)
+        
+        
+        
 end
-(*ent.id||'#'||ent.libelle||'#'||ent.description||'#'||ent.numero||'#'||ent.rue||'#'||ent.code_postal||'#'||ent.ville
+(*entreprise.id||'#'||entreprise.libelle||'#'||entreprise.description||'#'||entreprise.numero||'#'||entreprise.rue||'#'||entreprise.code_postal||'#'||entreprise.ville
 
 @Contrat{con.sigle||'#'||con.description}*)

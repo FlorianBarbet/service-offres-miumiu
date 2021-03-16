@@ -17,13 +17,13 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
 
   let create_entreprise ?id ~libelle ~description ~numero ~rue ~code_postal ~ville  =
     let open Lwt in
-    OffreRepository.create_entreprise ~id ~libelle ~description ~numero ~rue ~code_postal ~ville
+    OffreRepository.create_entreprise ~libelle ~description ~numero ~rue ~code_postal ~ville
     >>= (function
         | Ok db_result -> Lwt.return_ok ()
         | Error result -> 
           let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to create entreprise")
 
-  let create ?id ?duree ~titre ~description ~created_at_str ~end_at_str ~entreprise ~contrat ~contact_str   =
+  let create ?duree ~titre ~description ~created_at_str ~end_at_str ~entreprise ~contrat ~contact_str   =
     let created_at = Date.of_string created_at_str 
     and end_at = Date.of_string end_at_str
    in
@@ -32,7 +32,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       | Ok contact -> 
         let open Lwt in
 
-        (OffreRepository.create ~id ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ~duree
+        (OffreRepository.create ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ~duree
         >>= (function
           | Ok db_result -> Lwt.return_ok ()
           | Error result -> 
@@ -42,7 +42,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
     let open Lwt in
     OffreRepository.get_by_id ~id
     >>= (function
-    | Ok db_result -> Lwt.return_ok (D.Offre.to_yojson db_result )
+    | Ok db_result -> let _ = print_endline @@ D.Offre.show db_result in Lwt.return_ok (D.Offre.to_yojson db_result )
     | Error result -> 
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 

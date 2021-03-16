@@ -11,15 +11,12 @@ CREATE TABLE "Offre"
 
     contact TEXT NOT NULL,
     duree integer,
+    active boolean NOT NULL DEFAULT true,
        
-    CONSTRAINT fk_coe_offre 
-       FOREIGN KEY id_offre REFERENCES "Offre"(id), 
     CONSTRAINT fk_coe_entreprise 
-       FOREIGN KEY id_entreprise REFERENCES "Entreprise"(id),
+       FOREIGN KEY (id_entreprise) REFERENCES "Entreprise"(id),
     CONSTRAINT fk_coe_contrat 
-       FOREIGN KEY type_contrat REFERENCES "Contrat"(type),
-    CONSTRAINT pk_coe 
-        PRIMARY KEY (id_offre,id_entreprise,type_contrat)
+       FOREIGN KEY (type_contrat) REFERENCES "Contrat"(sigle)
 );
 
 CREATE TABLE "Entreprise"(

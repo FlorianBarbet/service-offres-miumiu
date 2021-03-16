@@ -26,11 +26,12 @@ module Entreprise : sig
     description : string;
     numero : string;(* faire un module expres pour verifier le format*)
     rue : string; (* possible de faire une verification avec une api on verra *)
-    code_postal : string; (* faire un module expres pour verifier le format*)
+    code_postal : int; (* faire un module expres pour verifier le format*)
     ville : string (* possible de faire une verification avec une api en fonction du CP on verra*)
   }
   [@@deriving make, show, yojson]
   val of_string : string -> t
+  val to_yojson : t -> Yojson.Safe.t
 end
 
 module Contrat : sig 
@@ -56,5 +57,5 @@ module Offre : sig
     duree : int option
   }
   [@@deriving make, show, yojson]
-
+  val to_yojson : t -> Yojson.Safe.t
 end

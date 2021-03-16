@@ -5,88 +5,63 @@
 module Environment = struct
   let app_name =
     try
-      let name = Unix.getenv "APP_NAME" in
+      let name = Unix.getenv "APP_NAME_OFFRE" in
       if name <> "" then name else failwith "Empty APP_NAME is not allowed"
     with
     | Not_found ->
         let () =
           prerr_endline
-            "[WARN] : APP_NAME environment variable is not set, fallback \
+            "[WARN] : APP_NAME_OFFRE environment variable is not set, fallback \
              default value"
         in
-        "auth.miage.rocks"
-
-
-  let hash_seed =
-    try Unix.getenv "SEED" with
-    | Not_found ->
-        let () =
-          prerr_endline
-            "[WARN] : SEED environment variable is not set, fallback default \
-             value - USE ONLY FOR DEV"
-        in
-        "The first ten million years were the worst"
-
-
-  let random_seed = Random.State.make_self_init ()
-
-  let jwt_secret =
-    try Unix.getenv "JWT_SECRET" with
-    | Not_found ->
-        let () =
-          prerr_endline
-            "[WARN] : JWT_SECRET environment variable is not set, fallback \
-             default value - USE ONLY FOR DEV"
-        in
-        "So Long and Thanks For All The Fish"
-
+        "offre.miage.rocks"
 
   let db_url =
-    try Unix.getenv "POSTGRESQL_ADDON_HOST" with
+    try Unix.getenv "POSTGRESQL_ADDON_HOST_OFFRE" with
     | Not_found ->
         let () =
           prerr_endline
-            "[WARN] : POSTGRESQL_ADDON_HOST environment variable is not set, \
+            "[WARN] : POSTGRESQL_ADDON_HOST_OFFRE environment variable is not set, \
              fallback to localhost - USE ONLY FOR DEV"
         in
         "127.0.0.1"
 
 
   let db_name =
-    try Unix.getenv "POSTGRESQL_ADDON_DB" with
+    try Unix.getenv "POSTGRESQL_ADDON_DB_OFFRE" with
     | Not_found ->
         let () =
           prerr_endline
-            "[WARN] : POSTGRESQL_ADDON_DB environment variable is not set \
+            "[WARN] : POSTGRESQL_ADDON_DB_OFFRE environment variable is not set \
              fallback to offredb - USE ONLY FOR DEV"
         in
         "offredb"
 
 
   let db_port =
-    try Unix.getenv "POSTGRESQL_ADDON_PORT" with
+    try Unix.getenv "POSTGRESQL_ADDON_PORT_OFFRE" with
     | Not_found ->
         let () =
           prerr_endline
-            "[WARN] : POSTGRESQL_ADDON_PORT environment variable is not set \
+            "[WARN] : POSTGRESQL_ADDON_PORT_OFFRE environment variable is not set \
              fallback to 5432 - USE ONLY FOR DEV"
         in
         "5432"
 
 
   let db_user =
-    try Unix.getenv "POSTGRESQL_ADDON_USER" with
+    try Unix.getenv "POSTGRESQL_ADDON_USER_OFFRE" with
     | Not_found ->
         let () =
           prerr_endline
-            "[WARN] : POSTGRESQL_ADDON_USER environment variable is not set \
+            "[WARN] : POSTGRESQL_ADDON_USER_OFFRE environment variable is not set \
              fallback to postgres - USE ONLY FOR DEV"
         in
         "postgres"
 
 
   let db_password =
-    try Unix.getenv "POSTGRESQL_ADDON_PASSWORD" with
+    try Unix.getenv "POSTGRESQL_ADDON_PASSWORD_OFFRE" with
     | Not_found ->
         let () =
           prerr_endline

@@ -94,11 +94,10 @@ let create_entreprise req =
     | Some json ->
         let open Yojson.Safe.Util in
         
-        let titre = json |> member "libelle" |> to_string
+        let titre = json |> member "titre" |> to_string
         and description = json |> member "description" |> to_string
-        and id = json |> member "id" |> to_int_option
         and duree = json |> member "duree" |> to_int_option
-        
+
         and contact_str = json |> member "contact" |> to_string
         and created_at_str = json |> member "created_at" |> to_string
         and end_at_str = json |> member "end_at" |> to_string
@@ -107,7 +106,7 @@ let create_entreprise req =
         and contrat = Router.param req "sigle_contrat"
         
         in
-        OffreService.create ?id ?duree ~titre ~description ~created_at_str ~end_at_str ~entreprise ~contrat ~contact_str
+        OffreService.create ?duree ~titre ~description ~created_at_str ~end_at_str ~entreprise ~contrat ~contact_str
         >>= (function
         | Error e ->
           json_response_of_a_string "Error" e ~status:`Forbidden
@@ -117,7 +116,9 @@ let create_entreprise req =
 let get_by_id req =
     let open Lwt in
     let open Yojson.Safe.Util in
+    let _ = print_endline "ICI" in
     let id = Router.param req "id_offre" |> int_of_string in
+    let _ = print_endline (string_of_int id) in
     OffreService.get_by_id ~id
     >>= (function
     | Error e ->
@@ -135,7 +136,7 @@ let routes =
   ; App.put "/offre/:id_offre" echo
   ; App.delete "/offre/:id_offre" echo
   ; App.get "/offre/list/:ville" echo
-  ; App.get "/offre/detail/:id" get_by_id
+  ; App.get "/offre/detail/:id_offre" get_by_id
   ]
 
 
