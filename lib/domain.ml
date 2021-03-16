@@ -124,3 +124,5 @@ module Offre = struct
       ] 
 
 end
+
+let empty_yojson = `Assoc[]

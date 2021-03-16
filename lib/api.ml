@@ -116,7 +116,6 @@ let create_entreprise req =
 let get_by_id req =
     let open Lwt in
     let open Yojson.Safe.Util in
-    let _ = print_endline "ICI" in
     let id = Router.param req "id_offre" |> int_of_string in
     let _ = print_endline (string_of_int id) in
     OffreService.get_by_id ~id
@@ -126,6 +125,17 @@ let get_by_id req =
       |> Lwt.return
     | Ok res -> Response.of_json res |> Lwt.return)
 
+let delete req =
+  let open Lwt in
+  let open Yojson.Safe.Util in
+  let id = Router.param req "id_offre" |> int_of_string in
+  let _ = print_endline (string_of_int id) in
+  OffreService.delete ~id
+  >>= (function
+  | Error e ->
+    json_response_of_a_string "Error" e ~status:`Forbidden
+    |> Lwt.return
+  | Ok res -> Response.make ~status:`OK () |> Lwt.return)
 
 let routes =
   [ App.get "/" root
@@ -134,7 +144,7 @@ let routes =
   ; App.post "/contrat" create_contrat
   ; App.post "/offre/:id_entreprise/:sigle_contrat" create
   ; App.put "/offre/:id_offre" echo
-  ; App.delete "/offre/:id_offre" echo
+  ; App.delete "/offre/:id_offre" delete
   ; App.get "/offre/list/:ville" echo
   ; App.get "/offre/detail/:id_offre" get_by_id
   ]

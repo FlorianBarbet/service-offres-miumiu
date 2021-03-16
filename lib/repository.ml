@@ -53,7 +53,7 @@ module type OFFRE = sig
 
   val get_by_id :
         id:int 
-      -> (D.Offre.t, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
+      -> (D.Offre.t option, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
       
   (*val get_all_by_ville :
       ville : string 
@@ -156,17 +156,22 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
             WHERE id = %int{id}
            |sql}]
 
-    let delete = (* a transformer en soft delete*)
+    let delete = 
       connection
       |> [%rapper
         execute
-        {sql| DELETE FROM "Offre" WHERE id = %int{id} |sql}]
-
+        {sql| UPDATE "Offre" SET active=false WHERE id = %int{id} |sql}]
+    let enable_offre = 
+        connection
+        |> [%rapper
+          execute
+          {sql| UPDATE "Offre" SET active=true WHERE id = %int{id} |sql}]
+  
     let get_by_id = 
       connection
       |>
       let open D.Offre in
-      [%rapper get_one
+      [%rapper get_opt
         {sql|
           SELECT offre.@int?{id}, 
                  offre.@string{titre},
@@ -181,7 +186,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
           FROM "Offre" offre
           JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
           JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
-          WHERE offre.id = %int{id}
+          WHERE offre.id = %int{id} AND offre.active
         |sql} 
         record_out]
          (* fun ~id 

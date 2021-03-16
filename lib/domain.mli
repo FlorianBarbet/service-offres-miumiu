@@ -59,3 +59,5 @@ module Offre : sig
   [@@deriving make, show, yojson]
   val to_yojson : t -> Yojson.Safe.t
 end
+
+val empty_yojson:[> `Assoc of 'a list ]
