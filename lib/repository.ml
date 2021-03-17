@@ -55,9 +55,9 @@ module type OFFRE = sig
         id:int 
       -> (D.Offre.t option, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
       
-  (*val get_all_by_ville :
+  val get_all_by_ville :
       ville : string 
-    -> (D.Offre.t list, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result*)
+    -> (D.Offre.t list, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 end
 
 module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
@@ -91,7 +91,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
     type t = D.Contrat.t
     let t = 
       let encode contrat = Ok (D.Contrat.show contrat)in
-      let decode contrat = Ok(D.Contrat.of_string contrat) in
+      let decode contrat = let _ = print_endline contrat in Ok(D.Contrat.of_string contrat) in
       Caqti_type.(custom ~encode ~decode string)
   end
 
@@ -186,7 +186,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
           FROM "Offre" offre
           JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
           JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
-          WHERE offre.id = %int{id} AND offre.active
+          WHERE offre.id = %int{id} AND offre.active AND offre.end_at > NOW()
         |sql} 
         record_out]
          (* fun ~id 
@@ -199,9 +199,31 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
          ~contact 
          ~duree 
          -> Ok (D.Offre.make ~id ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ?duree ())*)
+    let get_all_by_ville = 
+    connection
+    |>
+    let open D.Offre in
+    [%rapper get_many
+      {sql|
+          SELECT offre.@int?{id}, 
+                 offre.@string{titre},
+                 offre.@string{description}, 
+                 offre.@Date{created_at}, 
+                 offre.@Date{end_at},
+                 
+                 @Entreprise{entreprise},
+                 @Contrat{contrat},
+                 offre.@Email{contact},
+                 offre.@int?{duree}
+          FROM "Offre" offre
+          JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
+          JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
+          WHERE entreprise.ville = %string{ville} AND offre.active AND offre.end_at > NOW()
+        |sql} 
+        record_out]
+       (* (D.Offre.from_string_child)*)
         
-        
-        
+
 end
 (*entreprise.id||'#'||entreprise.libelle||'#'||entreprise.description||'#'||entreprise.numero||'#'||entreprise.rue||'#'||entreprise.code_postal||'#'||entreprise.ville
 

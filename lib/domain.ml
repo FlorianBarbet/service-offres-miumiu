@@ -1,11 +1,16 @@
 
-let parser str= 
+let parser str= (*it's used to parse data from DB into our domain*)
   let get_lt_from_fold (lt,_)= (*let _ = print_endline @@ List.nth lt 0  in*) lt in  
   String.split_on_char ',' str 
   |> List.fold_left (fun (lt,sub) s -> 
+
     match String.get s 0 with
-    | '"' when String.get s @@ String.length s -1 != '"' -> (lt,sub^s)  
-    | _ when String.get s @@ String.length s -1 = '"' -> ((if sub <> "" then sub^", "^s else s)::lt,"")
+    | '"' when String.get s @@ String.length s -1 != '"' -> (lt,sub^(String.sub s 1 @@ String.length s -1))  
+    | _ when String.get s @@ String.length s -1 = '"' -> 
+      let _ = print_endline s in
+      let rm_quote =( String.sub s (if String.get s 0 = '"' then 1 else 0) @@ String.length s -1) in
+      let clean_txt = if String.get rm_quote @@ String.length rm_quote -1 = '"' then (String.sub rm_quote 0 @@ String.length rm_quote-1) else rm_quote in
+      ((if sub <> "" then sub^", "^clean_txt else clean_txt)::lt,"")
     | _ when sub <> "" -> (lt,sub ^", " ^ s)
     | _ -> (s::lt,sub)) ([],"") |> get_lt_from_fold |> List.rev
 
@@ -122,6 +127,16 @@ module Offre = struct
         "entreprise",Entreprise.to_yojson offre.entreprise;
         "contrat", Contrat.to_yojson offre.contrat
       ] 
+
+  let to_yojson_as_list offres = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
+  ( List.map (fun a -> (a.titre),to_yojson a) offres)
+
+
+  let from_string_child ~entreprise_str ~contrat_str = 
+    let entreprise = Entreprise.of_string entreprise_str
+    and contrat = Contrat.of_string contrat_str in make ~entreprise ~contrat
+
+    
 
 end
 

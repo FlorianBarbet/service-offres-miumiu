@@ -44,7 +44,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
     >>= (function
     | Ok db_result ->
       let offre = match db_result with | Some v -> D.Offre.to_yojson v | None -> D.empty_yojson in
-      let _ = print_endline @@ Yojson.Safe.show offre in Lwt.return_ok (offre )
+      (*let _ = print_endline @@ Yojson.Safe.show offre in*) Lwt.return_ok (offre )
     | Error result -> 
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 
@@ -65,7 +65,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
             and description = Option.value ~default:offre.description description_opt
             and entreprise = Option.value ~default:offre_entreprise_id  entreprise_opt
             and contrat = Option.value ~default:offre_contrat_sigle contrat_opt
-            and contact = Option.value ~default:offre.contact  contact_opt
+            and contact = Option.value ~default:offre.contact  @@ Option.bind contact_opt (fun v -> match D.Email.make v with | Error e -> None | Ok c -> Some c)
           in
           OffreRepository.update  ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ~duree ~id
           >>= (function
@@ -83,4 +83,15 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       | Ok db_result -> Lwt.return_ok ()
       | Error result -> 
         let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to delete")
+
+  let get_by_ville ~ville =
+    let open Lwt in
+    
+    OffreRepository.get_all_by_ville ~ville
+    >>= (function
+    | Ok db_result ->
+      let offre_list =  D.Offre.to_yojson_as_list db_result in
+      let _ = print_endline @@ Yojson.Safe.show @@ D.Offre.to_yojson @@List.nth db_result 0 in Lwt.return_ok (offre_list)
+    | Error result ->
+      let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")   
 end

@@ -36,7 +36,7 @@ let check_auth action req=
   let json = ( req |> Request.to_json  ) in
   match (Error "not implemented") with
       | Error e ->
-        json_response_of_a_string "Error" e ~status:`Forbidden
+        json_response_of_a_string "error" e ~status:`Forbidden
         |> Lwt.return
       | Ok _ -> action ~uuid ~json
 
@@ -53,7 +53,7 @@ let create_contrat req =
       OffreService.create_contrat ~sigle ~description
       >>= (function
       | Error e ->
-        json_response_of_a_string "Error" e ~status:`Forbidden
+        json_response_of_a_string "error" e ~status:`Forbidden
         |> Lwt.return
       | Ok _ -> Response.make ~status:`Created () |> Lwt.return)
 
@@ -78,7 +78,7 @@ let create_entreprise req =
       OffreService.create_entreprise ?id ~libelle ~description ~numero ~rue ~code_postal ~ville
       >>= (function
       | Error e ->
-        json_response_of_a_string "Error" e ~status:`Forbidden
+        json_response_of_a_string "error" e ~status:`Forbidden
         |> Lwt.return
       | Ok _ -> Response.make ~status:`Created () |> Lwt.return)
 
@@ -109,46 +109,85 @@ let create_entreprise req =
         OffreService.create ?duree ~titre ~description ~created_at_str ~end_at_str ~entreprise ~contrat ~contact_str
         >>= (function
         | Error e ->
-          json_response_of_a_string "Error" e ~status:`Forbidden
+          json_response_of_a_string "error" e ~status:`Forbidden
           |> Lwt.return
         | Ok _ -> Response.make ~status:`Created () |> Lwt.return)
 
-let get_by_id req =
+  let update req =
+    let open Lwt in
+    req
+    |> Request.to_json
+    >>= function
+    | None -> Response.make ~status:`Bad_request () |> Lwt.return
+    | Some json ->
+        let open Yojson.Safe.Util in
+        
+        let titre_opt = json |> member "titre" |> to_string_option
+        and description_opt = json |> member "description" |> to_string_option
+        and duree = json |> member "duree" |> to_int_option
+
+        and contact_opt = json |> member "contact" |> to_string_option
+        and created_at_str = json |> member "created_at" |> to_string_option
+        and end_at_str = json |> member "end_at" |> to_string_option
+
+        and entreprise_opt = json |> member "ent" |> to_int_option
+        and contrat_opt = json |> member "ent" |> to_string_option
+
+        and id = Router.param req "id_offre" |> int_of_string
+        in
+        OffreService.update ?duree ?titre_opt ?description_opt ?created_at_str ?end_at_str ?entreprise_opt ?contrat_opt ?contact_opt ~id
+        >>= (function
+        | Error e ->
+          json_response_of_a_string "error" e ~status:`Forbidden
+          |> Lwt.return
+        | Ok _ -> Response.make ~status:`Created () |> Lwt.return)
+
+  let get_by_id req =
+      let open Lwt in
+      let open Yojson.Safe.Util in
+      let id = Router.param req "id_offre" |> int_of_string in
+      OffreService.get_by_id ~id
+      >>= (function
+      | Error e ->
+        json_response_of_a_string "error" e ~status:`Forbidden
+        |> Lwt.return
+      | Ok res -> Response.of_json res |> Lwt.return)
+
+  let delete req =
     let open Lwt in
     let open Yojson.Safe.Util in
     let id = Router.param req "id_offre" |> int_of_string in
-    let _ = print_endline (string_of_int id) in
-    OffreService.get_by_id ~id
+    OffreService.delete ~id
     >>= (function
     | Error e ->
-      json_response_of_a_string "Error" e ~status:`Forbidden
+      json_response_of_a_string "error" e ~status:`Forbidden
+      |> Lwt.return
+    | Ok res -> Response.make ~status:`OK () |> Lwt.return)
+
+  let get_by_ville req =
+    let open Lwt in
+    let open Yojson.Safe.Util in
+    let ville = Router.param req "ville"  in
+    let _ = print_endline ville in
+    OffreService.get_by_ville ~ville
+    >>= (function
+    | Error e ->
+      json_response_of_a_string "error" e ~status:`Forbidden
       |> Lwt.return
     | Ok res -> Response.of_json res |> Lwt.return)
 
-let delete req =
-  let open Lwt in
-  let open Yojson.Safe.Util in
-  let id = Router.param req "id_offre" |> int_of_string in
-  let _ = print_endline (string_of_int id) in
-  OffreService.delete ~id
-  >>= (function
-  | Error e ->
-    json_response_of_a_string "Error" e ~status:`Forbidden
-    |> Lwt.return
-  | Ok res -> Response.make ~status:`OK () |> Lwt.return)
-
-let routes =
-  [ App.get "/" root
-  ; App.post "/echo" echo
-  ; App.post "/entreprise" create_entreprise
-  ; App.post "/contrat" create_contrat
-  ; App.post "/offre/:id_entreprise/:sigle_contrat" create
-  ; App.put "/offre/:id_offre" echo
-  ; App.delete "/offre/:id_offre" delete
-  ; App.get "/offre/list/:ville" echo
-  ; App.get "/offre/detail/:id_offre" get_by_id
-  ]
+  let routes =
+    [ App.get "/" root
+    ; App.post "/echo" echo
+    ; App.post "/entreprise" create_entreprise
+    ; App.post "/contrat" create_contrat
+    ; App.post "/offre/:id_entreprise/:sigle_contrat" create
+    ; App.put "/offre/:id_offre" update
+    ; App.delete "/offre/:id_offre" delete
+    ; App.get "/offre/list/:ville" get_by_ville
+    ; App.get "/offre/detail/:id_offre" get_by_id
+    ]
 
 
-let add_routes app = List.fold_left (fun app route -> route app) app routes
+  let add_routes app = List.fold_left (fun app route -> route app) app routes
 
