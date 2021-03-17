@@ -176,6 +176,19 @@ let create_entreprise req =
       |> Lwt.return
     | Ok res -> Response.of_json res |> Lwt.return)
 
+  let get_villes req =
+    let open Lwt in
+    let open Yojson.Safe.Util in
+    
+    
+    OffreService.get_villes () 
+    >>= (function
+    | Error e ->
+      json_response_of_a_string "error" e ~status:`Forbidden
+      |> Lwt.return
+    | Ok res -> Response.of_json res |> Lwt.return)
+  
+
   let routes =
     [ App.get "/" root
     ; App.post "/echo" echo
@@ -186,6 +199,7 @@ let create_entreprise req =
     ; App.delete "/offre/:id_offre" delete
     ; App.get "/offre/list/:ville" get_by_ville
     ; App.get "/offre/detail/:id_offre" get_by_id
+    ; App.get "/offre/villes" get_villes
     ]
 
 

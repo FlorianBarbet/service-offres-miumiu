@@ -94,4 +94,14 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       let _ = print_endline @@ Yojson.Safe.show @@ D.Offre.to_yojson @@List.nth db_result 0 in Lwt.return_ok (offre_list)
     | Error result ->
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")   
+
+  let get_villes () = 
+    let open Lwt in
+    
+    OffreRepository.get_villes ()
+    >>= (function
+    | Ok db_result -> let lt = D.Entreprise.ville_list db_result in
+      let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
+    | Error result ->
+      let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 end

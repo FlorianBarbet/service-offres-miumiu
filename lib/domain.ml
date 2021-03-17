@@ -45,6 +45,8 @@ struct
   }
   [@@deriving make, show, yojson]
 
+  let ville_list (lt:string list) = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@`Assoc [ "villes",`List (List.map (fun e -> `String e) lt) ]
+
   let to_yojson entreprise =
     let from_option_int option_int = match option_int with 
     | Some i -> `Int i 

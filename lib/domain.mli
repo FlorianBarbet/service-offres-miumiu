@@ -32,6 +32,7 @@ module Entreprise : sig
   [@@deriving make, show, yojson]
   val of_string : string -> t
   val to_yojson : t -> Yojson.Safe.t
+  val ville_list: string list -> Yojson.Safe.t
 end
 
 module Contrat : sig 

@@ -90,9 +90,9 @@ let day_validator date  = match (date.month |> month_translator) with
 | None -> false
 
 let list_of_date l = 
-  let  day   = List.nth l 0 
-  and  month = List.nth l 1 
-  and  year  = List.nth l 2 
+  let  day   = List.nth l 2
+  and  month = List.nth l 1
+  and  year  = List.nth l 0
     in {day;month = NUMERIC month ;year}
     
 let make date = if day_validator date then Some date else None
@@ -106,6 +106,7 @@ let string_of_date date =
   let mm = match String.length mm with 
             | e when e < 2 -> "0"^mm
             | _ -> mm in
+  let _ = print_endline @@ "INTO DATE MODULE"^yyyy^"-"^mm^"-"^dd in
     yyyy^"-"^mm^"-"^dd
 let show = string_of_date
 let pp ppf date = Format.pp_print_string ppf (show date)

@@ -58,6 +58,9 @@ module type OFFRE = sig
   val get_all_by_ville :
       ville : string 
     -> (D.Offre.t list, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
+  val get_villes : 
+  unit -> (string list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+
 end
 
 module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
@@ -73,8 +76,8 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
   module Date = struct
     type t = Date.t
     let t = 
-      let encode date = Ok (Date.show date) in
-      let decode date = Ok (Date.of_string date ) in
+      let encode date = let _ = print_endline @@ Date.show date in  Ok (Date.show date) in
+      let decode date = let _ = print_endline date in Ok (Date.of_string date ) in
       Caqti_type.(custom ~encode ~decode string)
   end
 
@@ -221,10 +224,14 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
           WHERE entreprise.ville = %string{ville} AND offre.active AND offre.end_at > NOW()
         |sql} 
         record_out]
-       (* (D.Offre.from_string_child)*)
-        
+    
+    let get_villes = 
+      connection
+      |>
+      let open D.Offre in
+      [%rapper get_many
+        {sql|
+            SELECT @string{ville} FROM "Entreprise"
+          |sql}]        
 
 end
-(*entreprise.id||'#'||entreprise.libelle||'#'||entreprise.description||'#'||entreprise.numero||'#'||entreprise.rue||'#'||entreprise.code_postal||'#'||entreprise.ville
-
-@Contrat{con.sigle||'#'||con.description}*)
