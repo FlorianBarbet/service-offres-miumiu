@@ -194,9 +194,41 @@ let create_entreprise req ~id=
   let get_villes req =
     let open Lwt in
     let open Yojson.Safe.Util in
-    
-    
+
     OffreService.get_villes () 
+    >>= (function
+    | Error e ->
+      json_response_of_a_string "error" e ~status:`Forbidden
+      |> Lwt.return
+    | Ok res -> Response.of_json res |> Lwt.return)
+  
+  let get_disable_offres req = 
+    let open Lwt in
+    let open Yojson.Safe.Util in
+
+    OffreService.get_disable_offres () 
+    >>= (function
+    | Error e ->
+      json_response_of_a_string "error" e ~status:`Forbidden
+      |> Lwt.return
+    | Ok res -> Response.of_json res |> Lwt.return)
+  
+  let get_entreprises req =
+    let open Lwt in
+    let open Yojson.Safe.Util in
+
+    OffreService.get_entreprises () 
+    >>= (function
+    | Error e ->
+      json_response_of_a_string "error" e ~status:`Forbidden
+      |> Lwt.return
+    | Ok res -> Response.of_json res |> Lwt.return)
+
+  let get_contrats req =
+    let open Lwt in
+    let open Yojson.Safe.Util in
+
+    OffreService.get_contrats () 
     >>= (function
     | Error e ->
       json_response_of_a_string "error" e ~status:`Forbidden
@@ -215,6 +247,9 @@ let create_entreprise req ~id=
     ; App.get "/offre/list/:ville" get_by_ville
     ; App.get "/offre/detail/:id_offre" get_by_id
     ; App.get "/offre/villes" get_villes
+    ; App.get "/offre/disable" get_disable_offres
+    ; App.get "/entreprise" get_entreprises
+    ; App.get "/contrat" get_contrats
     ]
 
 

@@ -103,6 +103,35 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
     | Error result ->
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
+
+  let get_disable_offres () =
+    let open Lwt in
+    
+    OffreRepository.get_disable_offres ()
+    >>= (function
+    | Ok db_result -> 
+      let convert = List.map (fun p -> D.Offre.Disable.of_pair p) db_result in
+      let lt = D.Offre.Disable.to_list_yojson @@ convert  in
+      let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
+    | Error result ->
+      let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
+
+  let get_entreprises () =
+    let open Lwt in
+    OffreRepository.get_entreprises ()
+    >>= (function
+    | Ok db_result -> let lt = D.Entreprise.to_yojson_as_list db_result in
+      let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
+    | Error result ->
+      let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
+  let get_contrats () =
+    let open Lwt in
+    OffreRepository.get_contrats ()
+    >>= (function
+    | Ok db_result -> let lt = D.Contrat.to_yojson_as_list db_result in
+      let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
+    | Error result ->
+      let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 end
 
 module Membre (MembreRepository : Repository.MEMBRE) = struct

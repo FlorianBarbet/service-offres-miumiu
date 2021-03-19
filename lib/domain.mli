@@ -32,6 +32,7 @@ module Entreprise : sig
   val of_string : string -> t
   val to_yojson : t -> Yojson.Safe.t
   val ville_list: string list -> Yojson.Safe.t
+  val to_yojson_as_list : t list -> Yojson.Safe.t
 end
 
 module Contrat : sig 
@@ -41,6 +42,7 @@ module Contrat : sig
   }
   [@@deriving make, show, yojson]
   val of_string : string -> t
+  val to_yojson_as_list : t list -> Yojson.Safe.t
 end
 
 module Offre : sig
@@ -57,6 +59,7 @@ module Offre : sig
     duree : int option
   }
   [@@deriving make, show, yojson]
+  
   val to_yojson : t -> Yojson.Safe.t
   val to_yojson_as_list : t list -> Yojson.Safe.t
   val from_string_child : entreprise_str:string ->
@@ -68,6 +71,18 @@ module Offre : sig
     end_at:Offre__Date.t ->
     contact:Email.t ->
     ?duree:int -> unit -> t
+
+  
+    module Disable : sig
+      type t = {
+        id:int;
+        titre:string;
+        email:string
+      }[@@deriving make, show, yojson]
+      val of_pair : int * string * string -> t
+      val to_list_yojson : t list-> Yojson.Safe.t
+    end
+  
 end
 
 val empty_yojson:[> `Assoc of 'a list ]

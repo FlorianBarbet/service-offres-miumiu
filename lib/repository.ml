@@ -66,7 +66,17 @@ module type OFFRE = sig
 
   val get_disable_offres :
   unit ->
-    ((string * string) list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+    ((int * string * string) list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+
+  val get_entreprises :
+  unit ->
+    (Offre__Domain.Entreprise.t list, [> Caqti_error.call_or_retrieve ]) result
+    Lwt.t
+
+  val get_contrats :
+  unit ->
+    (Offre__Domain.Contrat.t list, [> Caqti_error.call_or_retrieve ]) result
+    Lwt.t
 
 end
 
@@ -174,7 +184,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
         connection
         |> [%rapper
           execute
-          {sql| UPDATE "Offre" SET active=true WHERE id = %int{id} |sql}]
+          {sql| UPDATE "Offre" SET active=true WHERE id = %int{id} AND end_at > NOW() |sql}]
   
     let get_by_id = 
       connection
@@ -244,9 +254,24 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |>
       [%rapper get_many
         {sql|
-            SELECT @string{id},@string{titre} FROM "Offre"
+            SELECT @int{id}, @string{titre}, @string{contact} FROM "Offre" WHERE end_at > NOW() AND not active
           |sql}]
-      
+
+    let get_entreprises =
+      connection
+      |>
+      [%rapper get_many
+        {sql|
+            SELECT @Entreprise{entreprise} FROM "Entreprise" entreprise
+          |sql}]
+
+    let get_contrats = 
+      connection
+      |>
+      [%rapper get_many
+        {sql|
+            SELECT @Contrat{contrat} FROM "Contrat" contrat
+          |sql}]
 
 end
 

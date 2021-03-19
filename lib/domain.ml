@@ -77,6 +77,8 @@ struct
       and ville = List.nth split_on_char 6 in
    make ~id ~libelle ~description ~numero ~rue ~code_postal ~ville ()
 
+  let to_yojson_as_list contrats = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
+  ( List.map (fun a -> (a.libelle),to_yojson a) contrats)
    
 end
 
@@ -100,6 +102,9 @@ struct
   let sigle = List.nth split_on_char 0
   and description = List.nth split_on_char 1 in
    make ~sigle ~description 
+  
+   let to_yojson_as_list contrats = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
+  ( List.map (fun a -> (a.sigle),to_yojson a) contrats)
 
 end
 
@@ -141,8 +146,20 @@ module Offre = struct
     let entreprise = Entreprise.of_string entreprise_str
     and contrat = Contrat.of_string contrat_str in make ~entreprise ~contrat
 
+  module Disable = struct
+    type t = {
+      id:int;
+      titre:string;
+      email:string
+    }[@@deriving make, show, yojson]
     
+    let of_pair (id,titre,email) = make ~id ~titre ~email
+    let to_list_yojson (lt:t list) =  Yojson.Safe.from_string @@ Yojson.Safe.to_string @@
+      `Assoc (List.map (fun t -> (string_of_int t.id),`Assoc["titre",`String t.titre; "email",`String t.email]) lt)  
 
+  end
+  
+    
 end
 
 let empty_yojson = `Assoc[]
