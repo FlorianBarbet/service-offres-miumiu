@@ -48,7 +48,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
     | Error result -> 
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 
-  let update ?duree ?titre_opt ?description_opt ?created_at_str ?end_at_str ?entreprise_opt ?contrat_opt ?contact_opt ~id  =
+  let update ?duree ?titre_opt ?description_opt ?created_at_str ?end_at_str ?entreprise_opt ?contrat_opt ~id ~email =
       let open Lwt in
       OffreRepository.get_by_id ~id 
       >>= (function
@@ -65,9 +65,8 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
             and description = Option.value ~default:offre.description description_opt
             and entreprise = Option.value ~default:offre_entreprise_id  entreprise_opt
             and contrat = Option.value ~default:offre_contrat_sigle contrat_opt
-            and contact = Option.value ~default:offre.contact  @@ Option.bind contact_opt (fun v -> match D.Email.make v with | Error e -> None | Ok c -> Some c)
           in
-          OffreRepository.update  ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ~duree ~id
+          OffreRepository.update  ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~duree ~id ~email
           >>= (function
               | Ok db_result -> Lwt.return_ok ()
               | Error result -> 
@@ -76,9 +75,9 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       )
 
 
-  let delete ~id =
+  let delete ~id ~email=
     let open Lwt in
-      OffreRepository.delete ~id
+      OffreRepository.delete ~id ~email
       >>= (function
       | Ok db_result -> Lwt.return_ok ()
       | Error result -> 
@@ -108,6 +107,13 @@ end
 
 module Membre (MembreRepository : Repository.MEMBRE) = struct
   let verify ~headers = 
+    let open Lwt in
+    MembreRepository.verify ~headers 
+    >>= (function
+    | Ok r -> Lwt.return_ok r
+    | Error e -> let _ = print_endline e in Lwt.return_error e )
+
+  let get_email_by_id ~id ~headers =
     let open Lwt in
     MembreRepository.verify ~headers 
     >>= (function

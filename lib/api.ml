@@ -43,10 +43,9 @@ let check_auth action req=
       | Ok response ->
         let json = response |> Yojson.Safe.from_string in 
         let id = json |> member "id" |> to_string in
-        action ~id @@ req
-      
+        action req ~id
 
-let create_contrat req =
+let create_contrat req ~id=
   let open Lwt in
   req
   |> Request.to_json
@@ -63,7 +62,7 @@ let create_contrat req =
         |> Lwt.return
       | Ok _ -> Response.make ~status:`Created () |> Lwt.return)
 
-let create_entreprise req =
+let create_entreprise req ~id=
   let open Lwt in
   req
   |> Request.to_json
@@ -89,10 +88,20 @@ let create_entreprise req =
       | Ok _ -> Response.make ~status:`Created () |> Lwt.return)
 
 
+  let get_contact action req ~id = 
+    let open Lwt in    
+    let jwt = Option.value (Request.header "Authorization" req) ~default:"" in
+    MembreService.get_email_by_id ~id ~headers:(RestConfiguration.authorization jwt) 
+    >>= function
+    | Error e -> json_response_of_a_string "error" e ~status:`Forbidden |> Lwt.return
+    | Ok response ->
+      let open Yojson.Safe.Util in
+      let json = response |> Yojson.Safe.from_string in 
+      let email = json |> member "email" |> to_string in
+      action req ~id ~email
 
-
-  let create req =
-    let open Lwt in
+  let create req ~id ~email=
+    let open Lwt in    
     req
     |> Request.to_json
     >>= function
@@ -102,9 +111,9 @@ let create_entreprise req =
         
         let titre = json |> member "titre" |> to_string
         and description = json |> member "description" |> to_string
-        and duree = json |> member "duree" |> to_int_option
+        and duree = json |> member "duree" |> to_int_option  
+        and contact_str = email
 
-        and contact_str = json |> member "contact" |> to_string
         and created_at_str = json |> member "created_at" |> to_string
         and end_at_str = json |> member "end_at" |> to_string
 
@@ -119,7 +128,7 @@ let create_entreprise req =
           |> Lwt.return
         | Ok _ -> Response.make ~status:`Created () |> Lwt.return)
 
-  let update req =
+  let update req ~id ~email =
     let open Lwt in
     req
     |> Request.to_json
@@ -132,7 +141,6 @@ let create_entreprise req =
         and description_opt = json |> member "description" |> to_string_option
         and duree = json |> member "duree" |> to_int_option
 
-        and contact_opt = json |> member "contact" |> to_string_option
         and created_at_str = json |> member "created_at" |> to_string_option
         and end_at_str = json |> member "end_at" |> to_string_option
 
@@ -141,12 +149,23 @@ let create_entreprise req =
 
         and id = Router.param req "id_offre" |> int_of_string
         in
-        OffreService.update ?duree ?titre_opt ?description_opt ?created_at_str ?end_at_str ?entreprise_opt ?contrat_opt ?contact_opt ~id
+        OffreService.update ?duree ?titre_opt ?description_opt ?created_at_str ?end_at_str ?entreprise_opt ?contrat_opt ~id ~email
         >>= (function
         | Error e ->
           json_response_of_a_string "error" e ~status:`Forbidden
           |> Lwt.return
         | Ok _ -> Response.make ~status:`Created () |> Lwt.return)
+
+  let delete req ~id ~email =
+    let open Lwt in
+    let open Yojson.Safe.Util in
+    let id = Router.param req "id_offre" |> int_of_string in
+    OffreService.delete ~id ~email
+    >>= (function
+    | Error e ->
+      json_response_of_a_string "error" e ~status:`Forbidden
+      |> Lwt.return
+    | Ok res -> Response.make ~status:`OK () |> Lwt.return)
 
   let get_by_id req =
       let open Lwt in
@@ -159,16 +178,6 @@ let create_entreprise req =
         |> Lwt.return
       | Ok res -> Response.of_json res |> Lwt.return)
 
-  let delete req =
-    let open Lwt in
-    let open Yojson.Safe.Util in
-    let id = Router.param req "id_offre" |> int_of_string in
-    OffreService.delete ~id
-    >>= (function
-    | Error e ->
-      json_response_of_a_string "error" e ~status:`Forbidden
-      |> Lwt.return
-    | Ok res -> Response.make ~status:`OK () |> Lwt.return)
 
   let get_by_ville req =
     let open Lwt in
@@ -198,11 +207,11 @@ let create_entreprise req =
   let routes =
     [ App.get "/" root
     ; App.post "/echo" echo
-    ; App.post "/entreprise" create_entreprise
-    ; App.post "/contrat" create_contrat
-    ; App.post "/offre/:id_entreprise/:sigle_contrat" create
-    ; App.put "/offre/:id_offre" update
-    ; App.delete "/offre/:id_offre" delete
+    ; App.post "/entreprise" (check_auth @@ create_entreprise)
+    ; App.post "/contrat" (check_auth @@ create_contrat)
+    ; App.post "/offre/:id_entreprise/:sigle_contrat" (check_auth @@ get_contact @@ create)
+    ; App.put "/offre/:id_offre" (check_auth @@ get_contact @@ update)
+    ; App.delete "/offre/:id_offre" (check_auth @@ get_contact @@ delete )
     ; App.get "/offre/list/:ville" get_by_ville
     ; App.get "/offre/detail/:id_offre" get_by_id
     ; App.get "/offre/villes" get_villes

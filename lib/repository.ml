@@ -44,13 +44,14 @@ module type OFFRE = sig
   -> end_at : Date.t
   -> entreprise : int
   -> contrat : string   
-  -> contact: D.Email.t
   -> duree : int option
   -> id : int
+  -> email : string
     -> (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val delete :
         id:int
+        -> email:string
     ->  (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val get_by_id :
@@ -159,17 +160,16 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                               created_at = %Date{created_at}, 
                               end_at = %Date{end_at}, 
                               id_entreprise = %int{entreprise}, 
-                              type_contrat = %string{contrat}, 
-                              contact = %Email{contact}, 
+                              type_contrat = %string{contrat},  
                               duree = %int?{duree}
-            WHERE id = %int{id}
+            WHERE id = %int{id} AND contact = %string{email}
            |sql}]
 
     let delete = 
       connection
       |> [%rapper
         execute
-        {sql| UPDATE "Offre" SET active=false WHERE id = %int{id} |sql}]
+        {sql| UPDATE "Offre" SET active=false WHERE id = %int{id} AND contact = %string{email} |sql}]
     let enable_offre = 
         connection
         |> [%rapper
@@ -253,20 +253,27 @@ end
 
 module type MEMBRE = sig
   val verify : headers:Cohttp__Header.t -> (string, string) result Lwt.t
+  val get_email_by_id : id:string -> headers:Cohttp__Header.t -> (string, string) result Lwt.t
 end
 
 module Membre(R:Infra.REST) : MEMBRE = struct
   open Lwt
   open Cohttp
   open Cohttp_lwt_unix
-  let verify ~headers = 
-    R.request "verify" ~headers ~body:`Empty ()
+
+
+  let request name ~headers ~body ~router_param = 
+    R.request name ~headers ~body ~router_param ()
     >>= fun (resp,body) ->
       let code = resp |> Response.status |> Code.code_of_status in
       let str_body = body |> Cohttp_lwt.Body.to_string |> Lwt_main.run in
       match code with 
       |200 -> Lwt.return @@ Ok (str_body)
       |_ ->   Lwt.return @@ Error (str_body) 
+
+  let verify ~headers = request "verify" ~headers ~body:`Empty ~router_param:[]
+    
+  let get_email_by_id ~id ~headers = request "get_member" ~headers ~body:`Empty ~router_param:[id]
 
 
   let () = (* to debug and verify link with auth service *)
