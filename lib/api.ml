@@ -266,5 +266,5 @@ let create_entreprise req ~id=
 
   let add_routes app = List.fold_left (fun app route -> route app) app routes
 
-  let _ = Date.show @@ Option.get @@ Date.now ()
+  let _ = print_endline @@ "Date server start : "^Date.show @@ Option.get @@ Date.now ()
 
