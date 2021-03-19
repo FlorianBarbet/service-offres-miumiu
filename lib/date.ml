@@ -106,22 +106,17 @@ let string_of_date date =
   let mm = match String.length mm with 
             | e when e < 2 -> "0"^mm
             | _ -> mm in
-  let _ = print_endline @@ "INTO DATE MODULE"^yyyy^"-"^mm^"-"^dd in
+  let _ =  if Infra.Environment.log_level = (Some Logs.Debug) then print_endline @@ " DATE  "^yyyy^"-"^mm^"-"^dd else () in
     yyyy^"-"^mm^"-"^dd
 let show = string_of_date
 let pp ppf date = Format.pp_print_string ppf (show date)
 
 let now_format () =
-  let current_millis = Unix.time () 
-  and one_day_by_ms = 1000. *.3600. *. 24.
-  and average_month_by_day = 30.4375
-  and one_year_by_day = 365.2421898 in
-  let y =  (( current_millis /. one_day_by_ms) /. one_year_by_day) in
-  let current_millis_after_year = ( y *. one_year_by_day *. one_day_by_ms) -. current_millis in
-  let month = current_millis_after_year /. one_day_by_ms /. average_month_by_day in
-  let current_millis_after_month = (month *. average_month_by_day *. one_day_by_ms) -. current_millis_after_year in
-  let day = current_millis_after_month /. one_day_by_ms in
-  {day = int_of_float day;month = NUMERIC (int_of_float month);year = int_of_float y}
+  let curr = (Unix.gmtime @@ Unix.time ()) in
+  let year = curr.tm_year+1900
+  and month = NUMERIC (curr.tm_mon+1)
+  and day = curr.tm_mday in
+  {day ;month;year}
 
 
 let now () = make @@ now_format ()
