@@ -7,7 +7,8 @@ module PostgresRepository = Repository.Offre (Connection)
 
 module RestConfiguration = ( Infra.RestConfiguration)
 module RestRepository = Repository.Membre(RestConfiguration)
-module OffreService = Service.Offre (PostgresRepository)(RestRepository)
+module OffreService = Service.Offre (PostgresRepository)
+module MembreService = Service.Membre(RestRepository)
 
 let set_logger () =
   Logs.set_reporter (Logs_fmt.reporter ()) ;
@@ -33,15 +34,17 @@ let echo req =
   
 let check_auth action req=     
   let open Lwt in
-  let uuid = Router.param req "id" in
   let open Yojson.Safe.Util in
-  (*let jwt = Option.value (Request.header "Authorization" req) ~default:""  in*)
-  let json = ( req |> Request.to_json  ) in
-  match (Error "not implemented") with
+  let jwt = Option.value (Request.header "Authorization" req) ~default:""  in
+  MembreService.verify ~headers:(RestConfiguration.authorization jwt) >>= function
       | Error e ->
         json_response_of_a_string "error" e ~status:`Forbidden
         |> Lwt.return
-      | Ok _ -> action ~uuid ~json
+      | Ok response ->
+        let json = response |> Yojson.Safe.from_string in 
+        let id = json |> member "id" |> to_string in
+        action ~id @@ req
+      
 
 let create_contrat req =
   let open Lwt in

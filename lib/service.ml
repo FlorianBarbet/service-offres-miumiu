@@ -5,7 +5,7 @@ open! Util
 module D = Domain
 module E = Infra.Environment
 
-module Offre (OffreRepository : Repository.OFFRE)(MembreRepository : Repository.MEMBRE) = struct
+module Offre (OffreRepository : Repository.OFFRE) = struct
   
   let create_contrat ~sigle ~description =
     let open Lwt in
@@ -106,3 +106,12 @@ module Offre (OffreRepository : Repository.OFFRE)(MembreRepository : Repository.
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 end
 
+module Membre (MembreRepository : Repository.MEMBRE) = struct
+  let verify ~headers = 
+    let open Lwt in
+    MembreRepository.verify ~headers 
+    >>= (function
+    | Ok r -> Lwt.return_ok r
+    | Error e -> let _ = print_endline e in Lwt.return_error e )
+end
+  
