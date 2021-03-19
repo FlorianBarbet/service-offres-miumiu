@@ -132,6 +132,13 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
     | Error result ->
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
+  let enable_offre ~id ~email =
+    let open Lwt in
+    OffreRepository.enable_offre ~id ~email
+    >>= (function
+    | Ok _ -> Lwt.return_ok ()
+    | Error result ->
+      let _ = print_endline (Caqti_error.show result) in Lwt.return_error@@ "Unable to enable offre with id "^string_of_int id)
 end
 
 module Membre (MembreRepository : Repository.MEMBRE) = struct

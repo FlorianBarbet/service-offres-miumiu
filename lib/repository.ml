@@ -78,6 +78,10 @@ module type OFFRE = sig
     (Offre__Domain.Contrat.t list, [> Caqti_error.call_or_retrieve ]) result
     Lwt.t
 
+  val enable_offre : 
+  id:int ->
+    email:string -> (unit, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+
 end
 
 module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
@@ -184,7 +188,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
         connection
         |> [%rapper
           execute
-          {sql| UPDATE "Offre" SET active=true WHERE id = %int{id} AND end_at > NOW() |sql}]
+          {sql| UPDATE "Offre" SET active=true WHERE id = %int{id} AND contact = %string{email} AND end_at > NOW() |sql}]
   
     let get_by_id = 
       connection

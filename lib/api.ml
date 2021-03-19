@@ -166,6 +166,17 @@ let create_entreprise req ~id=
       json_response_of_a_string "error" e ~status:`Forbidden
       |> Lwt.return
     | Ok res -> Response.make ~status:`OK () |> Lwt.return)
+  
+  let enable_offre req ~id ~email =
+    let open Lwt in
+    let open Yojson.Safe.Util in
+    let id = Router.param req "id_offre" |> int_of_string in
+    OffreService.enable_offre ~id ~email
+    >>= (function
+    | Error e ->
+      json_response_of_a_string "error" e ~status:`Forbidden
+      |> Lwt.return
+    | Ok res -> Response.make ~status:`OK () |> Lwt.return)
 
   let get_by_id req =
       let open Lwt in
@@ -235,7 +246,6 @@ let create_entreprise req ~id=
       |> Lwt.return
     | Ok res -> Response.of_json res |> Lwt.return)
   
-
   let routes =
     [ App.get "/" root
     ; App.post "/echo" echo
@@ -250,6 +260,7 @@ let create_entreprise req ~id=
     ; App.get "/offre/disable" get_disable_offres
     ; App.get "/entreprise" get_entreprises
     ; App.get "/contrat" get_contrats
+    ; App.put "/disable-offre/:id_offre" (check_auth @@ get_contact @@enable_offre)
     ]
 
 
