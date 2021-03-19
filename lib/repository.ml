@@ -5,6 +5,8 @@
 module E = Infra.Environment
 module D = Domain
 
+
+
 module type OFFRE = sig
   type ('res, 'err) query_result =
     ('res, ([> Caqti_error.call_or_retrieve ] as 'err)) result Lwt.t
@@ -60,6 +62,10 @@ module type OFFRE = sig
     -> (D.Offre.t list, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
   val get_villes : 
   unit -> (string list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+
+  val get_disable_offres :
+  unit ->
+    ((string * string) list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
 
 end
 
@@ -228,10 +234,57 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
     let get_villes = 
       connection
       |>
-      let open D.Offre in
       [%rapper get_many
         {sql|
             SELECT @string{ville} FROM "Entreprise"
-          |sql}]        
+          |sql}]  
+          
+    let get_disable_offres = 
+      connection
+      |>
+      [%rapper get_many
+        {sql|
+            SELECT @string{id},@string{titre} FROM "Offre"
+          |sql}]
+      
+
+end
+
+
+module type MEMBRE = sig
+  val verify : headers:Cohttp__Header.t -> (string, string) result Lwt.t
+end
+
+module Membre(R:Infra.REST) : MEMBRE = struct
+  open Lwt
+  open Cohttp
+  open Cohttp_lwt_unix
+  let verify ~headers = 
+    R.request "verify" ~headers ~body:`Empty ()
+    >>= fun (resp,body) ->
+      let code = resp |> Response.status |> Code.code_of_status in
+      let str_body = body |> Cohttp_lwt.Body.to_string |> Lwt_main.run in
+      match code with 
+      |200 -> Lwt.return @@ Ok (str_body)
+      |_ ->   Lwt.return @@ Error (str_body) 
+
+
+  let () = (* to debug and verify link with auth service *)
+    match E.log_level with
+    | Some Logs.Debug ->
+          let before_print = R.request "root"  ~body:`Empty ~headers:(Cohttp.Header.of_list []) ()
+          >>= fun (resp, body) ->
+          let code = resp |> Response.status |> Code.code_of_status in
+          Printf.printf "Response code: %d\n" code;
+          body |> Cohttp_lwt.Body.to_string >|= fun body ->
+          Printf.printf "Body of length: %d\n" (String.length body);
+          body in
+              let _ = print_endline "\n===== Test Link to Auth =====" in
+              let body = Lwt_main.run before_print in
+              let _ = print_endline ("Received body -> " ^ body)  in
+              print_endline "===== Test Link to Auth =====\n"
+    | _ -> ()
+      
+
 
 end

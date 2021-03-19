@@ -4,7 +4,10 @@ open Opium
 
 module Connection = (val Infra.Database.connect ())
 module PostgresRepository = Repository.Offre (Connection)
-module OffreService = Service.Offre (PostgresRepository)
+
+module RestConfiguration = ( Infra.RestConfiguration)
+module RestRepository = Repository.Membre(RestConfiguration)
+module OffreService = Service.Offre (PostgresRepository)(RestRepository)
 
 let set_logger () =
   Logs.set_reporter (Logs_fmt.reporter ()) ;

@@ -96,6 +96,19 @@ module Environment = struct
             "[WARN] : LEVEL environment variable is not set, fallback to DEBUG"
         in
         Some Logs.Debug
+
+  let auth_uri = 
+    let default_uri = "http://localhost:3000" in
+    try Unix.getenv "AUTH_SERVICE_URI" with
+    | Not_found ->
+        let () =
+          prerr_endline @@
+            "[WARN] : AUTH_SERVICE_URI environment variable is not \
+             set, fallback to "^default_uri^" - USE ONLY FOR DEV"
+        in
+        default_uri
+
+ 
 end
 
 module Database = struct
@@ -105,4 +118,68 @@ module Database = struct
     Uri.of_string db_uri |> Caqti_lwt.connect)
     >>= Caqti_lwt.or_fail
     |> Lwt_main.run
+end
+
+module type REST = sig
+  type body = [ `Empty
+  | `Stream of string Lwt_stream.t
+  | `String of string
+  | `Strings of string list ] 
+
+  type t = {uri:string;
+            ctx:Cohttp_lwt_unix__Net.ctx option;
+            requests:(string * 
+            (?body:body 
+                  -> ?headers:Cohttp.Header.t 
+                  -> unit 
+                  -> (Cohttp.Response.t * body) 
+            Lwt.t)) list;}
+
+  val value : t
+  val authorization : string -> Cohttp.Header.t
+  val uri : string
+  val ctx : Cohttp_lwt_unix__Net.ctx option
+  val request : string  
+                -> ?body:body 
+                -> ?headers:Cohttp__Header.t 
+                -> unit
+                -> (Cohttp.Response.t * body) Lwt.t
+
+end
+
+module RestConfiguration : REST = struct
+  type body = [ `Empty
+  | `Stream of string Lwt_stream.t
+  | `String of string
+  | `Strings of string list ] 
+
+  type t = {uri:string;
+            ctx:Cohttp_lwt_unix__Net.ctx option;
+            requests:(string * (?body:body -> ?headers:Cohttp.Header.t -> unit -> (Cohttp.Response.t * body) Lwt.t)) list;}
+  let value =
+    let open Environment in 
+    let open Cohttp_lwt_unix in
+    {uri=auth_uri;
+    ctx=None;
+    requests=[
+      ("verify",
+          fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ()-> 
+              Client.post ~body ~headers @@ Uri.of_string @@ auth_uri^"/verify");
+      ("root",
+          fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ()-> 
+              Client.get ~headers @@ Uri.of_string @@ auth_uri^"/");
+      ]} 
+  
+  let authorization str = Cohttp.Header.of_list [("Authorization",str)]
+
+  let uri = value.uri
+
+  let ctx = value.ctx
+
+  let request str = 
+        let open Environment in 
+    let open Cohttp_lwt_unix in
+    let default = (fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) () -> Client.get ~headers @@ Uri.of_string @@ auth_uri^"/") in
+    Option.value ~default @@ List.fold_left (fun acc (k,v) -> if k == str then Some v else acc ) None value.requests
+
 end

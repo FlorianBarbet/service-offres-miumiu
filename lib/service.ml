@@ -5,8 +5,8 @@ open! Util
 module D = Domain
 module E = Infra.Environment
 
-module Offre (OffreRepository : Repository.OFFRE) = struct
-
+module Offre (OffreRepository : Repository.OFFRE)(MembreRepository : Repository.MEMBRE) = struct
+  
   let create_contrat ~sigle ~description =
     let open Lwt in
     OffreRepository.create_contrat ~sigle ~description
@@ -105,3 +105,4 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
     | Error result ->
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 end
+
