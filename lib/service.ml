@@ -30,6 +30,8 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
 
   let create ?duree ~titre ~description ~created_at_str ~end_at_str ~entreprise ~contrat ~contact_str ~membre_id  =
   D.Uuid.make membre_id |> uuid_traitement (fun membre_id ->
+    D.Uuid.make entreprise |> uuid_traitement (fun entreprise ->
+      D.Uuid.make contrat |> uuid_traitement (fun contrat -> 
       let created_at = Date.of_string created_at_str 
       and end_at = Date.of_string end_at_str
       in
@@ -43,7 +45,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
             | Ok db_result -> Lwt.return_ok ()
             | Error result -> 
               let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to create offre"))
-    )
+    )))
 
   let get_by_id ~id =
     let open Lwt in

@@ -33,8 +33,8 @@ module type OFFRE = sig
     -> description : string
     -> created_at : Date.t
     -> end_at : Date.t
-    -> entreprise : int
-    -> contrat : string   
+    -> entreprise : D.Uuid.t
+    -> contrat : D.Uuid.t   
     -> contact: D.Email.t
     -> duree : int option
     -> membre_id : D.Uuid.t
@@ -170,14 +170,14 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |> [%rapper
            execute
           {sql|
-          INSERT INTO "Offre" (id,titre, description, created_at, end_at, id_entreprise, type_contrat, contact, duree, membre_id) 
+          INSERT INTO "Offre" (id, titre, description, created_at, end_at, id_entreprise, id_contrat, contact, duree, membre_id) 
           VALUES  (%Uuid{id},
                    %string{titre}, 
                    %string{description}, 
                    %Date{created_at}, 
                    %Date{end_at}, 
-                   %int{entreprise}, 
-                   %string{contrat}, 
+                   %Uuid{entreprise}, 
+                   %Uuid{contrat}, 
                    %Email{contact}, 
                    %int?{duree},
                    %Uuid{membre_id})
@@ -193,7 +193,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                               created_at = %Date{created_at}, 
                               end_at = %Date{end_at}, 
                               id_entreprise = %Uuid{entreprise}, 
-                              type_contrat = %Uuid{contrat},  
+                              id_contrat = %Uuid{contrat},  
                               duree = %int?{duree}
             WHERE id = %Uuid{id} AND membre_id = %Uuid{membre_id}
            |sql}]
@@ -228,7 +228,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                  offre.@Uuid{membre_id}
           FROM "Offre" offre
           JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
-          JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
+          JOIN "Contrat" contrat ON contrat.id = offre.id_contrat
           WHERE offre.id = %Uuid{id} AND offre.active AND offre.end_at > NOW()
         |sql} 
         record_out]
@@ -251,7 +251,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                  offre.@Uuid{membre_id}
           FROM "Offre" offre
           JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
-          JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
+          JOIN "Contrat" contrat ON contrat.id = offre.id_contrat
           WHERE entreprise.ville = %string{ville} AND offre.active AND offre.end_at > NOW()
         |sql} 
         record_out]
@@ -307,7 +307,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                    offre.@Uuid{membre_id}
             FROM "Offre" offre
             JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
-            JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
+            JOIN "Contrat" contrat ON contrat.id = offre.id_contrat
             WHERE offre.membre_id = %Uuid{membre_id} AND offre.active AND offre.end_at > NOW()
           |sql} 
           record_out]

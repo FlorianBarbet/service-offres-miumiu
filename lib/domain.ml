@@ -1,13 +1,12 @@
 
 let parser str= (*it's used to parse data from DB into our domain*)
-  let get_lt_from_fold (lt,_)= (*let _ = print_endline @@ List.nth lt 0  in*) lt in  
+  let get_lt_from_fold (lt,_)= lt in  
   String.split_on_char ',' str 
   |> List.fold_left (fun (lt,sub) s -> 
 
     match String.get s 0 with
     | '"' when String.get s @@ String.length s -1 != '"' -> (lt,sub^(String.sub s 1 @@ String.length s -1))  
     | _ when String.get s @@ String.length s -1 = '"' -> 
-      let _ = print_endline s in
       let rm_quote =( String.sub s (if String.get s 0 = '"' then 1 else 0) @@ String.length s -1) in
       let clean_txt = if String.get rm_quote @@ String.length rm_quote -1 = '"' then (String.sub rm_quote 0 @@ String.length rm_quote-1) else rm_quote in
       ((if sub <> "" then sub^", "^clean_txt else clean_txt)::lt,"")
@@ -23,7 +22,7 @@ module Uuid = struct
 
   let show u = to_string u
 
-  let to_yojson uuid = Yojson.Safe.from_string @@ show uuid
+  let to_yojson uuid = `String (show uuid)
 
   let of_yojson json = make @@ Yojson.Safe.to_string json
 end
@@ -101,7 +100,7 @@ struct
 
   let to_yojson contrat =
     `Assoc [
-       "id", `String (Uuid.show contrat.id);
+       "id", (Uuid.to_yojson contrat.id);
        "sigle", `String contrat.sigle; 
        "description", `String contrat.description
     ]

@@ -104,7 +104,7 @@ let create_entreprise req ~membre_id=
         and created_at_str = json |> member "created_at" |> to_string
         and end_at_str = json |> member "end_at" |> to_string
 
-        and entreprise = Router.param req "id_entreprise" |> int_of_string
+        and entreprise = Router.param req "id_entreprise"
         and contrat = Router.param req "sigle_contrat"
         
         in
