@@ -6,7 +6,7 @@ open Opium
 open Offre
 (** Build the Opium app *)
 let app = App.empty |> App.port 3030 |>
-App.middleware (Middleware.allow_cors ~origins:["*"] ~headers:["*"] ())
+App.middleware (Middleware.allow_cors ~origins:["*"] ~expose:["*"] ())
 |> App.cmd_name Infra.Environment.app_name 
 |> Api.add_routes
 
