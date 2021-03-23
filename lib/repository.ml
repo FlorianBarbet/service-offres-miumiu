@@ -154,9 +154,9 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |> [%rapper
            execute
           {sql|
-          INSERT INTO "Entreprise" (id,libelle, description, numero, rue, code_postal, ville) 
+          INSERT INTO "Entreprise" (id, libelle, description, numero, rue, code_postal, ville) 
           VALUES  (
-                   %Uuid{id}
+                   %Uuid{id},
                    %string{libelle}, 
                    %string{description}, 
                    %string{numero}, 
