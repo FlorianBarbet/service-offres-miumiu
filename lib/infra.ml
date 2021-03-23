@@ -3,6 +3,8 @@
    obtain one at https://mozilla.org/MPL/2.0/ *)
 
 module Environment = struct
+  let random_seed = Random.State.make_self_init ()
+
   let app_name =
     try
       let name = Unix.getenv "APP_NAME_OFFRE" in
@@ -107,8 +109,16 @@ module Environment = struct
              set, fallback to "^default_uri^" - USE ONLY FOR DEV"
         in
         default_uri
-
- 
+  let front_uri = 
+    let default_uri = "http://localhost:8080" in
+    try Unix.getenv "FRONT_URI" with
+    | Not_found ->
+        let () =
+          prerr_endline @@
+            "[WARN] : FRONT_URI environment variable is not \
+              set, fallback to "^default_uri^" - USE ONLY FOR DEV"
+        in
+        default_uri       
 end
 
 module Database = struct
@@ -157,7 +167,8 @@ module RestConfiguration : REST = struct
 
   type t = {uri:string;
             ctx:Cohttp_lwt_unix__Net.ctx option;
-            requests:(string * (?body:body -> ?headers:Cohttp.Header.t -> ?router_param:string list -> unit -> (Cohttp.Response.t * body) Lwt.t)) list;}
+            requests:
+            (string * (?body:body -> ?headers:Cohttp.Header.t -> ?router_param:string list -> unit -> (Cohttp.Response.t * body) Lwt.t)) list;}
 
   let uri_format route ~router_param = 
     let open Environment in List.fold_left (fun acc rp -> acc^"/"^rp) (auth_uri^route) router_param
@@ -169,14 +180,14 @@ module RestConfiguration : REST = struct
     ctx=None;
     requests=[
       ("verify",
-          fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ?(router_param=[]) ()-> 
-              Client.post ~body ~headers @@ Uri.of_string @@ auth_uri^"/verify");
+          fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ?(router_param=[]) () -> 
+            let uri = ( auth_uri^"/verify" |> Uri.of_string ) in Client.post ~body ~headers @@ uri );
       ("root",
-          fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ?(router_param=[]) ()-> 
-              Client.get ~headers @@ Uri.of_string @@ auth_uri^"/");
+          fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ?(router_param=[]) () -> 
+              let uri = Uri.of_string @@ auth_uri^"/" in Client.get ~headers @@ uri );
       ("get_member",
-          fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ?(router_param=[]) ()-> 
-              Client.get ~headers @@ Uri.of_string @@ uri_format "/member" ~router_param);
+          fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ?(router_param=[]) () -> 
+              let uri = Uri.of_string @@ uri_format "/member" ~router_param in Client.get ~headers @@ uri);
       ]}
   
   let authorization str = Cohttp.Header.of_list [("Authorization",str)]
@@ -189,6 +200,6 @@ module RestConfiguration : REST = struct
         let open Environment in 
     let open Cohttp_lwt_unix in
     let default = (fun ?(body=`Empty) ?(headers=Cohttp.Header.of_list []) ?(router_param=[]) () -> Client.get ~headers @@ Uri.of_string @@ auth_uri^"/") in
-    Option.value ~default @@ List.fold_left (fun acc (k,v) -> if k == str then Some v else acc ) None value.requests
+    Option.value ~default @@ List.fold_left (fun acc (k,v) -> if k = str then Some v else acc ) None value.requests
 
 end

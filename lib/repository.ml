@@ -12,12 +12,14 @@ module type OFFRE = sig
     ('res, ([> Caqti_error.call_or_retrieve ] as 'err)) result Lwt.t
 
   val create_contrat :
-      sigle : string
+      id : D.Uuid.t
+      -> sigle : string
       -> description : string
       -> (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val create_entreprise : 
-       libelle : string
+       id : D.Uuid.t
+    -> libelle : string
     -> description : string
     -> numero : string
     -> rue : string
@@ -26,7 +28,8 @@ module type OFFRE = sig
     -> (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val create :
-       titre : string
+    id : D.Uuid.t
+    -> titre : string
     -> description : string
     -> created_at : Date.t
     -> end_at : Date.t
@@ -34,28 +37,28 @@ module type OFFRE = sig
     -> contrat : string   
     -> contact: D.Email.t
     -> duree : int option
+    -> membre_id : D.Uuid.t
     -> (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val update :
-  
   titre : string
   -> description : string
   -> created_at : Date.t
   -> end_at : Date.t
-  -> entreprise : int
-  -> contrat : string   
+  -> entreprise : D.Uuid.t
+  -> contrat : D.Uuid.t   
   -> duree : int option
-  -> id : int
-  -> email : string
+  -> id : D.Uuid.t
+  -> membre_id:D.Uuid.t
     -> (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val delete :
-        id:int
-        -> email:string
+        id:D.Uuid.t
+        -> membre_id:D.Uuid.t
     ->  (unit, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
 
   val get_by_id :
-        id:int 
+        id:D.Uuid.t
       -> (D.Offre.t option, ([> Caqti_error.call_or_retrieve ] as 'err)) query_result
       
   val get_all_by_ville :
@@ -66,7 +69,7 @@ module type OFFRE = sig
 
   val get_disable_offres :
   unit ->
-    ((int * string * string) list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+    ((D.Uuid.t * string * D.Uuid.t) list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
 
   val get_entreprises :
   unit ->
@@ -79,8 +82,12 @@ module type OFFRE = sig
     Lwt.t
 
   val enable_offre : 
-  id:int ->
-    email:string -> (unit, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+  id:D.Uuid.t ->
+    membre_id:D.Uuid.t -> (unit, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+
+  val get_all_member_offre : 
+  membre_id:Offre__Domain.Uuid.t ->
+(Offre__Domain.Offre.t list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
 
 end
 
@@ -119,6 +126,16 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       Caqti_type.(custom ~encode ~decode string)
   end
 
+  module Uuid = struct
+    type t = D.Uuid.t
+
+    let t =
+      let encode uuid = Ok (D.Uuid.show uuid) in
+      let decode uuid = D.Uuid.make uuid in
+      Caqti_type.(custom ~encode ~decode string)
+  end
+
+
   type ('res, 'err) query_result =
     ('res, ([> Caqti_error.call_or_retrieve ] as 'err)) result Lwt.t
 
@@ -127,8 +144,8 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |> [%rapper
            execute
           {sql|
-          INSERT INTO "Contrat" (sigle,description) 
-          VALUES  (%string{sigle}, %string{description})
+          INSERT INTO "Contrat" (id,sigle,description) 
+          VALUES  (%Uuid{id}, %string{sigle}, %string{description})
           |sql}]
 
 
@@ -137,8 +154,9 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |> [%rapper
            execute
           {sql|
-          INSERT INTO "Entreprise" ( libelle, description, numero, rue, code_postal, ville) 
+          INSERT INTO "Entreprise" (id,libelle, description, numero, rue, code_postal, ville) 
           VALUES  (
+                   %Uuid{id}
                    %string{libelle}, 
                    %string{description}, 
                    %string{numero}, 
@@ -152,8 +170,8 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |> [%rapper
            execute
           {sql|
-          INSERT INTO "Offre" ( titre, description, created_at, end_at, id_entreprise, type_contrat, contact, duree) 
-          VALUES  (
+          INSERT INTO "Offre" (id,titre, description, created_at, end_at, id_entreprise, type_contrat, contact, duree, membre_id) 
+          VALUES  (%Uuid{id},
                    %string{titre}, 
                    %string{description}, 
                    %Date{created_at}, 
@@ -161,7 +179,8 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                    %int{entreprise}, 
                    %string{contrat}, 
                    %Email{contact}, 
-                   %int?{duree})
+                   %int?{duree},
+                   %Uuid{membre_id})
           |sql}]
 
     let update = 
@@ -173,22 +192,22 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                               description = %string{description}, 
                               created_at = %Date{created_at}, 
                               end_at = %Date{end_at}, 
-                              id_entreprise = %int{entreprise}, 
-                              type_contrat = %string{contrat},  
+                              id_entreprise = %Uuid{entreprise}, 
+                              type_contrat = %Uuid{contrat},  
                               duree = %int?{duree}
-            WHERE id = %int{id} AND contact = %string{email}
+            WHERE id = %Uuid{id} AND membre_id = %Uuid{membre_id}
            |sql}]
 
     let delete = 
       connection
       |> [%rapper
         execute
-        {sql| UPDATE "Offre" SET active=false WHERE id = %int{id} AND contact = %string{email} |sql}]
+        {sql| UPDATE "Offre" SET active=false WHERE id = %Uuid{id} AND membre_id = %Uuid{membre_id} |sql}]
     let enable_offre = 
         connection
         |> [%rapper
           execute
-          {sql| UPDATE "Offre" SET active=true WHERE id = %int{id} AND contact = %string{email} AND end_at > NOW() |sql}]
+          {sql| UPDATE "Offre" SET active=true WHERE id = %Uuid{id} AND membre_id = %Uuid{membre_id} AND end_at > NOW() |sql}]
   
     let get_by_id = 
       connection
@@ -196,7 +215,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       let open D.Offre in
       [%rapper get_opt
         {sql|
-          SELECT offre.@int?{id}, 
+          SELECT offre.@Uuid{id}, 
                  offre.@string{titre},
                  offre.@string{description}, 
                  offre.@Date{created_at}, 
@@ -205,30 +224,21 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                  @Entreprise{entreprise},
                  @Contrat{contrat},
                  offre.@Email{contact},
-                 offre.@int?{duree}
+                 offre.@int?{duree},
+                 offre.@Uuid{membre_id}
           FROM "Offre" offre
           JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
           JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
-          WHERE offre.id = %int{id} AND offre.active AND offre.end_at > NOW()
+          WHERE offre.id = %Uuid{id} AND offre.active AND offre.end_at > NOW()
         |sql} 
         record_out]
-         (* fun ~id 
-         ~titre 
-         ~description 
-         ~created_at 
-         ~end_at 
-         ~entreprise 
-         ~contrat 
-         ~contact 
-         ~duree 
-         -> Ok (D.Offre.make ~id ~titre ~description ~created_at ~end_at ~entreprise ~contrat ~contact ?duree ())*)
     let get_all_by_ville = 
     connection
     |>
     let open D.Offre in
     [%rapper get_many
       {sql|
-          SELECT offre.@int?{id}, 
+          SELECT offre.@Uuid{id}, 
                  offre.@string{titre},
                  offre.@string{description}, 
                  offre.@Date{created_at}, 
@@ -237,7 +247,8 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
                  @Entreprise{entreprise},
                  @Contrat{contrat},
                  offre.@Email{contact},
-                 offre.@int?{duree}
+                 offre.@int?{duree},
+                 offre.@Uuid{membre_id}
           FROM "Offre" offre
           JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
           JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
@@ -258,7 +269,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |>
       [%rapper get_many
         {sql|
-            SELECT @int{id}, @string{titre}, @string{contact} FROM "Offre" WHERE end_at > NOW() AND not active
+            SELECT @Uuid{id}, @string{titre}, @Uuid{membre_id} FROM "Offre" WHERE end_at > NOW() AND not active
           |sql}]
 
     let get_entreprises =
@@ -277,6 +288,29 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
             SELECT @Contrat{contrat} FROM "Contrat" contrat
           |sql}]
 
+    let get_all_member_offre = 
+      connection
+      |>
+      let open D.Offre in
+      [%rapper get_many
+        {sql|
+            SELECT offre.@Uuid{id}, 
+                   offre.@string{titre},
+                   offre.@string{description}, 
+                   offre.@Date{created_at}, 
+                   offre.@Date{end_at},
+                   
+                   @Entreprise{entreprise},
+                   @Contrat{contrat},
+                   offre.@Email{contact},
+                   offre.@int?{duree},
+                   offre.@Uuid{membre_id}
+            FROM "Offre" offre
+            JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
+            JOIN "Contrat" contrat ON contrat.sigle = offre.type_contrat
+            WHERE offre.membre_id = %Uuid{membre_id} AND offre.active AND offre.end_at > NOW()
+          |sql} 
+          record_out]
 end
 
 
@@ -290,22 +324,26 @@ module Membre(R:Infra.REST) : MEMBRE = struct
   open Cohttp
   open Cohttp_lwt_unix
 
-
+  
   let request name ~headers ~body ~router_param = 
     R.request name ~headers ~body ~router_param ()
     >>= fun (resp,body) ->
       let code = resp |> Response.status |> Code.code_of_status in
-      let str_body = body |> Cohttp_lwt.Body.to_string |> Lwt_main.run in
+      body |> Cohttp_lwt.Body.to_string 
+      >>= function str ->         
       match code with 
-      |200 -> Lwt.return @@ Ok (str_body)
-      |_ ->   Lwt.return @@ Error (str_body) 
+      |200 ->  Lwt.return_ok  str
+      |_ ->   Lwt.return_error  str
 
-  let verify ~headers = request "verify" ~headers ~body:`Empty ~router_param:[]
+  let verify ~headers = 
+    let body_str = {| {"jwt":"|}^(Option.value ~default:"" @@ Cohttp.Header.get headers "Authorization")^{|"} |} in
+    
+    request "verify" ~headers ~body:(`String body_str)  ~router_param:[]
     
   let get_email_by_id ~id ~headers = request "get_member" ~headers ~body:`Empty ~router_param:[id]
 
 
-  let () = (* to debug and verify link with auth service *)
+  let () =  (*to debug and verify link with auth service *)
     match E.log_level with
     | Some Logs.Debug ->
           let before_print = R.request "root"  ~body:`Empty ~headers:(Cohttp.Header.of_list []) ()
@@ -319,7 +357,7 @@ module Membre(R:Infra.REST) : MEMBRE = struct
               let body = Lwt_main.run before_print in
               let _ = print_endline ("Received body -> " ^ body)  in
               print_endline "===== Test Link to Auth =====\n"
-    | _ -> ()
+    | _ -> () 
       
 
 

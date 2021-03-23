@@ -97,6 +97,8 @@ let list_of_date l =
     
 let make date = if day_validator date then Some date else None
 
+let from_triple (day,month,year) = make {day;month;year}
+
 let of_string str = (*let _ = print_endline str in*) str |> String.split_on_char '-' |> List.map int_of_string |> list_of_date
 
 let string_of_date date = 

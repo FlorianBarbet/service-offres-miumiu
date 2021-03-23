@@ -1,26 +1,7 @@
-CREATE TABLE "Offre"
-(
-    id serial PRIMARY KEY NOT NULL,
-    titre TEXT NOT NULL,
-    description TEXT NOT NULL,
-    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-    end_at DATE NOT NULL,
 
-    id_entreprise integer NOT NULL,
-    type_contrat TEXT NOT NULL,
-
-    contact TEXT NOT NULL,
-    duree integer,
-    active boolean NOT NULL DEFAULT true,
-       
-    CONSTRAINT fk_coe_entreprise 
-       FOREIGN KEY (id_entreprise) REFERENCES "Entreprise"(id),
-    CONSTRAINT fk_coe_contrat 
-       FOREIGN KEY (type_contrat) REFERENCES "Contrat"(sigle)
-);
 
 CREATE TABLE "Entreprise"(
-    id serial PRIMARY KEY NOT NULL,
+    id UUID PRIMARY KEY NOT NULL,
     libelle TEXT NOT NULL,
     description TEXT NOT NULL,
     
@@ -32,8 +13,31 @@ CREATE TABLE "Entreprise"(
 
 
 CREATE TABLE "Contrat"(
-    sigle TEXT PRIMARY KEY,
+    id UUID PRIMARY KEY NOT NULL,
+    sigle TEXT,
     description TEXT
+);
+
+CREATE TABLE "Offre"
+(
+    id UUID PRIMARY KEY NOT NULL,
+    titre TEXT NOT NULL,
+    description TEXT NOT NULL,
+    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+    end_at DATE NOT NULL,
+
+    id_entreprise UUID NOT NULL,
+    id_contrat UUID NOT NULL,
+    membre_id UUID NOT NULL,
+
+    contact TEXT NOT NULL,
+    duree integer,
+    active boolean NOT NULL DEFAULT true,
+       
+    CONSTRAINT fk_coe_entreprise 
+       FOREIGN KEY (id_entreprise) REFERENCES "Entreprise"(id),
+    CONSTRAINT fk_coe_contrat 
+       FOREIGN KEY (id_contrat) REFERENCES "Contrat"(id)
 );
 
 /*

@@ -14,7 +14,19 @@ let parser str= (*it's used to parse data from DB into our domain*)
     | _ when sub <> "" -> (lt,sub ^", " ^ s)
     | _ -> (s::lt,sub)) ([],"") |> get_lt_from_fold |> List.rev
 
+module Uuid = struct
+  include Uuidm
 
+  let make uuid_string =
+    Uuidm.of_string uuid_string |> Option.to_result ~none:"Invalid_Uuid"
+
+
+  let show u = to_string u
+
+  let to_yojson uuid = Yojson.Safe.from_string @@ show uuid
+
+  let of_yojson json = make @@ Yojson.Safe.to_string json
+end
 
 module Email = struct
   (* This Source Code Form is subject to the terms of the Mozilla Public License,
@@ -38,7 +50,7 @@ end
 module Entreprise = 
 struct 
   type t = {
-    id : int option;
+    id : Uuid.t;
     libelle : string;
     description : string;
     numero : string;(* faire un module expres pour verifier le format*)
@@ -51,12 +63,8 @@ struct
   let ville_list (lt:string list) = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@`Assoc [ "villes",`List (List.map (fun e -> `String e) lt) ]
 
   let to_yojson entreprise =
-    let from_option_int option_int = match option_int with 
-    | Some i -> `Int i 
-    | None -> `String "" in
-     
     `Assoc [
-       "id", from_option_int entreprise.id; 
+       "id",  (Uuid.to_yojson entreprise.id); 
        "libelle", `String entreprise.libelle;
        "description", `String entreprise.description;
        "numero", `String entreprise.numero;
@@ -68,23 +76,24 @@ struct
   let of_string str= 
     let str_without_parenthesis = String.sub str 1 @@ (String.length str) - 2 in
       let split_on_char = parser str_without_parenthesis in
-      let id = int_of_string @@ List.nth split_on_char 0
+      let id = Result.value ~default:Uuid.nil @@ Uuid.make @@ List.nth split_on_char 0
       and libelle = List.nth split_on_char 1
       and description = List.nth split_on_char 2
       and numero = List.nth split_on_char 3
       and rue = List.nth split_on_char 4
       and code_postal = int_of_string @@ List.nth split_on_char 5
       and ville = List.nth split_on_char 6 in
-   make ~id ~libelle ~description ~numero ~rue ~code_postal ~ville ()
+      make ~id ~libelle ~description ~numero ~rue ~code_postal ~ville 
 
-  let to_yojson_as_list contrats = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
-  ( List.map (fun a -> (a.libelle),to_yojson a) contrats)
+  let to_yojson_as_list ent = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
+  ( List.map (fun a -> (a.libelle),to_yojson a) ent)
    
 end
 
 module Contrat =
 struct 
   type t = {
+    id : Uuid.t;
     sigle : string; (* faire un module specifique*)
     description : string
   }
@@ -92,25 +101,27 @@ struct
 
   let to_yojson contrat =
     `Assoc [
+       "id", `String (Uuid.show contrat.id);
        "sigle", `String contrat.sigle; 
        "description", `String contrat.description
     ]
 
   let of_string str= 
-  let str_without_parenthesis = String.sub str 1 @@ (String.length str) - 2 in
-  let split_on_char = parser str_without_parenthesis in
-  let sigle = List.nth split_on_char 0
-  and description = List.nth split_on_char 1 in
-   make ~sigle ~description 
+    let str_without_parenthesis = String.sub str 1 @@ (String.length str) - 2 in
+    let split_on_char = parser str_without_parenthesis in
+    let id = Result.value ~default:Uuid.nil @@Uuid.make @@ List.nth split_on_char 0
+    and sigle = List.nth split_on_char 1
+    and description = List.nth split_on_char 1 in
+    make ~id ~sigle ~description 
   
    let to_yojson_as_list contrats = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
-  ( List.map (fun a -> (a.sigle),to_yojson a) contrats)
+  ( List.map (fun a -> (Uuid.show a.id),to_yojson a) contrats)
 
 end
 
 module Offre = struct
   type t = {
-    id : int option;
+    id : Uuid.t;
     titre : string;
     description : string;
     created_at : Date.t;
@@ -119,7 +130,8 @@ module Offre = struct
     entreprise : Entreprise.t;
     contrat : Contrat.t;
     contact : Email.t;
-    duree : int option
+    duree : int option;
+    membre_id : Uuid.t
   }
   [@@deriving make, show, yojson]
 
@@ -129,33 +141,34 @@ module Offre = struct
      | None -> `String "" in (* impossible de mettre `Null Yojson.Safe ne l'accepte pas en ecriture juste en lecture pour les to_XXX_option*)
      Yojson.Safe.from_string @@ Yojson.Safe.to_string @@
      `Assoc [
-        "id", from_option_int offre.id; 
+        "id", (Uuid.to_yojson offre.id); 
         "titre", `String offre.titre;
         "description", `String offre.description;
         "created_at", `String (Date.show  offre.created_at) ;
         "end_at",  `String (Date.show  offre.end_at);
         "entreprise",Entreprise.to_yojson offre.entreprise;
-        "contrat", Contrat.to_yojson offre.contrat
+        "contrat", Contrat.to_yojson offre.contrat;
+        "duree", from_option_int offre.duree
       ] 
 
   let to_yojson_as_list offres = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
-  ( List.map (fun a -> (a.titre),to_yojson a) offres)
+  ( List.map (fun a -> (Uuid.show a.id),to_yojson a) offres)
 
 
-  let from_string_child ~entreprise_str ~contrat_str = 
+(*  let from_string_child ~entreprise_str ~contrat_str = 
     let entreprise = Entreprise.of_string entreprise_str
     and contrat = Contrat.of_string contrat_str in make ~entreprise ~contrat
-
+*)
   module Disable = struct
     type t = {
-      id:int;
+      id:Uuid.t;
       titre:string;
-      email:string
+      membre_id:Uuid.t
     }[@@deriving make, show, yojson]
     
-    let of_pair (id,titre,email) = make ~id ~titre ~email
+    let of_pair (id,titre,membre_id) = make ~id ~titre ~membre_id
     let to_list_yojson (lt:t list) =  Yojson.Safe.from_string @@ Yojson.Safe.to_string @@
-      `Assoc (List.map (fun t -> (string_of_int t.id),`Assoc["titre",`String t.titre; "email",`String t.email]) lt)  
+      `Assoc (List.map (fun t -> (Uuid.show t.id),`Assoc["id",(Uuid.to_yojson t.id);"titre",`String t.titre]) lt)  
 
   end
   
