@@ -81,7 +81,7 @@ module Offre : sig
   [@@deriving make, show, yojson]
   
   val to_yojson : t -> Yojson.Safe.t
-  val to_yojson_as_list : t list -> Yojson.Safe.t
+  val to_yojson_as_list : (int * t) list -> Yojson.Safe.t
   (*val from_string_child : entreprise_str:string ->
     contrat_str:string ->
     ?id:Uuid.t ->

@@ -89,13 +89,14 @@ let day_validator date  = match (date.month |> month_translator) with
 | Some m ->  ( m |> Month.informations ~years:date.year ).end_at_day |> Month.translate_month_type >= date.day
 | None -> false
 
+let make date = if day_validator date then Some date else None
 let list_of_date l = 
   let  day   = List.nth l 2
   and  month = List.nth l 1
   and  year  = List.nth l 0
-    in {day;month = NUMERIC month ;year}
+    in Option.get @@ make {day;month = NUMERIC month ;year}
     
-let make date = if day_validator date then Some date else None
+
 
 let from_triple (day,month,year) = make {day;month;year}
 
@@ -129,6 +130,14 @@ let compare date1 date2 =
          | 0 ->  compare date1.day date2.day  
          | compare_month -> compare_month)
   | compare_year -> compare_year
+
+let diff date1 date2 =
+  let fn_nb_day_in_month d = (int_of_month_types d.month) *30 in
+  let nb_day_years d= (31+31+30+31+30+31+31+30+31+30+31+28)*d.year in
+  let day = date1.day - date2.day
+  and month = ( fn_nb_day_in_month date1) - ( fn_nb_day_in_month date2)
+  and year = (nb_day_years date1) - (nb_day_years date2) in
+    day+month+year
 
 module WeekDay = struct 
   type t = 

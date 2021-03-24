@@ -84,8 +84,8 @@ struct
       and ville = List.nth split_on_char 6 in
       make ~id ~libelle ~description ~numero ~rue ~code_postal ~ville 
 
-  let to_yojson_as_list ent = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
-  ( List.map (fun a -> (a.libelle),to_yojson a) ent)
+  let to_yojson_as_list ent = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc ["entreprises",`List  
+  ( List.map (fun a -> to_yojson a) ent)]
    
 end
 
@@ -151,7 +151,13 @@ module Offre = struct
       ] 
 
   let to_yojson_as_list offres = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
-  ( List.map (fun a -> (Uuid.show a.id),to_yojson a) offres)
+  ( List.map (fun (ope,a) ->
+      let oav = float_of_int@@ List.length offres 
+      and njr = float_of_int@@ Date.diff a.end_at a.created_at  in
+      let njr_protect_from_zero = if njr=0. then 1. else njr in
+      let ranking = (oav-.(float_of_int@@ope)) /. njr_protect_from_zero in
+      let _ = print_endline @@ string_of_float oav^"____"^string_of_float njr^"____"^string_of_int ope^" =="^Uuid.show a.id in
+      string_of_float ranking,to_yojson a) offres)
 
 
 (*  let from_string_child ~entreprise_str ~contrat_str = 

@@ -1,5 +1,5 @@
 {
-  "checksum": "dd3fbb20aef12ae1e5815811b022b3b8",
+  "checksum": "b93377fa0e0626c61e4baf6ede08ba47",
   "root": "offre@link-dev:./package.json",
   "node": {
     "refmterr@3.3.2@d41d8cd9": {
@@ -35,7 +35,7 @@
       "dependencies": [
         "ocaml@4.8.1000@d41d8cd9", "@opam/uuidm@opam:0.9.7@bf725775",
         "@opam/safepass@opam:2.0@bfd69cec",
-        "@opam/ppx_rapper@opam:1.1.0@44931182",
+        "@opam/ppx_rapper@opam:1.1.1@308640bd",
         "@opam/ppx_deriving_yojson@opam:3.5.3@253e094d",
         "@opam/ppx_deriving@opam:4.5@870c733d",
         "@opam/opium@opam:0.19.0@da95e297",
@@ -1408,20 +1408,20 @@
         "@opam/dune@opam:2.8.4@ee414d6c", "@opam/base@opam:v0.14.1@d14008e2"
       ]
     },
-    "@opam/ppx_rapper@opam:1.1.0@44931182": {
-      "id": "@opam/ppx_rapper@opam:1.1.0@44931182",
+    "@opam/ppx_rapper@opam:1.1.1@308640bd": {
+      "id": "@opam/ppx_rapper@opam:1.1.1@308640bd",
       "name": "@opam/ppx_rapper",
-      "version": "opam:1.1.0",
+      "version": "opam:1.1.1",
       "source": {
         "type": "install",
         "source": [
-          "archive:https://opam.ocaml.org/cache/md5/6f/6fc6320394f523374bf77660c4df1b8e#md5:6fc6320394f523374bf77660c4df1b8e",
-          "archive:https://github.com/roddyyaga/ppx_rapper/archive/1.1.0.tar.gz#md5:6fc6320394f523374bf77660c4df1b8e"
+          "archive:https://opam.ocaml.org/cache/md5/18/18a069630784aa6ad83871c02b32a3e0#md5:18a069630784aa6ad83871c02b32a3e0",
+          "archive:https://github.com/roddyyaga/ppx_rapper/archive/1.1.1.tar.gz#md5:18a069630784aa6ad83871c02b32a3e0"
         ],
         "opam": {
           "name": "ppx_rapper",
-          "version": "1.1.0",
-          "path": "esy.lock/opam/ppx_rapper.1.1.0"
+          "version": "1.1.1",
+          "path": "esy.lock/opam/ppx_rapper.1.1.1"
         }
       },
       "overrides": [],

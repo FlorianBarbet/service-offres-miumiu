@@ -107,15 +107,37 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
           let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to delete")
       )
     )
+
+  let offre_nb_ent_list (lt:D.Offre.t list) = 
+  let open Lwt in
+   
+      let entreprise_id = List.map (fun (e:D.Offre.t) -> e.entreprise.id ) lt in
+      OffreRepository.get_offre_entreprise ~entreprise_id  >>=
+      (
+      function
+      | Ok count ->Lwt.return @@ List.map 
+      (fun (o:D.Offre.t) ->
+        let find = Option.value ~default:(0,o.entreprise.id) @@ List.find_opt (fun (c,(e:D.Uuid.t))->e=o.entreprise.id) count in
+        let extract (c,_) = c in
+        (extract find,o)) @@ lt
+      | Error result ->
+        let _ = print_endline (Caqti_error.show result) in Lwt.return @@ List.map (fun o -> (0,o)) lt
+      )
+    
+
   let get_by_ville ~ville =
     let open Lwt in
     
     OffreRepository.get_all_by_ville ~ville
     >>= (function
-    | Ok db_result ->
-      let offre_list =  D.Offre.to_yojson_as_list db_result in
+    | Ok (db_result:D.Offre.t list) ->
+      offre_nb_ent_list db_result
+      >>=
+      (function
+      |  lt -> let offre_list = D.Offre.to_yojson_as_list lt in
       let _ = print_endline @@ Yojson.Safe.show @@ D.Offre.to_yojson @@List.nth db_result 0 in Lwt.return_ok (offre_list)
-    | Error result ->
+      )
+      | Error result ->
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")   
 
   let get_villes () = 
@@ -173,7 +195,8 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
         OffreRepository.get_all_member_offre ~membre_id
         >>= (function
         | Ok db_result ->
-          let offre_list =  D.Offre.to_yojson_as_list db_result in
+          let without_counter = List.map (fun (o:D.Offre.t) -> (0,o)) db_result in
+          let offre_list =  D.Offre.to_yojson_as_list without_counter in
           let _ = print_endline @@ Yojson.Safe.show @@ D.Offre.to_yojson @@List.nth db_result 0 in Lwt.return_ok (offre_list)
         | Error result ->
           let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs") 

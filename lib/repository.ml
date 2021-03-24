@@ -89,6 +89,10 @@ module type OFFRE = sig
   membre_id:Offre__Domain.Uuid.t ->
 (Offre__Domain.Offre.t list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
 
+  val get_offre_entreprise : 
+  entreprise_id:Offre__Domain.Uuid.t list->
+    ((int*D.Uuid.t) list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+
 end
 
 module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
@@ -311,6 +315,19 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
             WHERE offre.membre_id = %Uuid{membre_id} AND offre.active AND offre.end_at > NOW()
           |sql} 
           record_out]
+
+    let get_offre_entreprise =
+      connection
+      |>
+      let open D.Offre in
+      [%rapper get_many
+        {sql|
+            SELECT @int{count(*)}, entreprise.@Uuid{id}
+            FROM "Offre" offre
+            JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
+            WHERE offre.active AND offre.end_at > NOW() AND entreprise.id IN (%list{%Uuid{entreprise_id}}) 
+            GROUP BY entreprise.id
+          |sql}]
 end
 
 

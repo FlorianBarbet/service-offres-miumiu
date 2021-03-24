@@ -19,7 +19,7 @@
     "@opam/ppx_deriving_yojson": "3.5.3",
     "@opam/uuidm": "0.9.7",
 
-    "@opam/ppx_rapper": "1.1.0",
+    "@opam/ppx_rapper": "1.1.1",
     "@opam/ocamlfind":"1.8.1",
     "@opam/ctypes":"0.17.1",
     "@opam/ctypes-foreign":"0.4.0",

@@ -31,9 +31,9 @@ build: [
 ]
 dev-repo: "git+https://github.com/roddyyaga/ppx_rapper.git"
 url {
-  src: "https://github.com/roddyyaga/ppx_rapper/archive/1.1.0.tar.gz"
+  src: "https://github.com/roddyyaga/ppx_rapper/archive/1.1.1.tar.gz"
   checksum: [
-    "md5=6fc6320394f523374bf77660c4df1b8e"
-    "sha512=0ae7a5569754ad7f7ebeb44a47e7d96764a6e2f06c2cdfa774f04603f36cfba010aa50292e7467837c3acd975805f3a22f837f6051b2e5436f2a5f1f54f426a6"
+    "md5=18a069630784aa6ad83871c02b32a3e0"
+    "sha512=6a8ec278d5529376e1f2ea0e594806971b4028e4ce1d2f79a4acd65e07d84c890b2c64f245483041b78a94381a6453ffba84592ef9ef1c41ffbf65f4c1e35857"
   ]
 }
