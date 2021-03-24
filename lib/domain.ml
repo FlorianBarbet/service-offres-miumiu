@@ -156,8 +156,8 @@ module Offre = struct
       and njr = float_of_int@@ Date.diff a.end_at a.created_at  in
       let njr_protect_from_zero = if njr=0. then 1. else njr in
       let ranking = (oav-.(float_of_int@@ope)) /. njr_protect_from_zero in
-      let _ = print_endline @@ string_of_float oav^"____"^string_of_float njr^"____"^string_of_int ope^" =="^Uuid.show a.id in
-      string_of_float ranking,to_yojson a) offres)
+
+      (string_of_float ranking)^"#"^Uuid.show a.id,to_yojson a) offres)
 
 
 (*  let from_string_child ~entreprise_str ~contrat_str = 
