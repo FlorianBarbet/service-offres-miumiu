@@ -136,20 +136,21 @@ module Offre = struct
   [@@deriving make, show, yojson]
 
   let to_yojson offre =
-     let from_option_int option_int = match option_int with 
-     | Some i -> `Int i 
-     | None -> `String "" in (* impossible de mettre `Null Yojson.Safe ne l'accepte pas en ecriture juste en lecture pour les to_XXX_option*)
-     Yojson.Safe.from_string @@ Yojson.Safe.to_string @@
-     `Assoc [
-        "id", (Uuid.to_yojson offre.id); 
-        "titre", `String offre.titre;
-        "description", `String offre.description;
-        "created_at", `String (Date.show offre.created_at) ;
-        "end_at",  `String (Date.show offre.end_at);
-        "entreprise",Entreprise.to_yojson offre.entreprise;
-        "contrat", Contrat.to_yojson offre.contrat;
-        "duree", from_option_int offre.duree
-      ]
+    Yojson.Safe.from_string @@ Yojson.Safe.to_string @@
+      `Assoc (
+        List.append [
+          "id", (Uuid.to_yojson offre.id); 
+          "titre", `String offre.titre;
+          "description", `String offre.description;
+          "created_at", `String (Date.show offre.created_at) ;
+          "end_at",  `String (Date.show offre.end_at);
+          "entreprise",Entreprise.to_yojson offre.entreprise;
+          "contrat", Contrat.to_yojson offre.contrat;]
+          @@
+          Option.value ~default:[] @@Option.bind offre.duree (fun d -> Some ["duree", `Int d])
+          )
+        
+      
 
   let to_yojson_as_list offres = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
   ( List.map (fun (ope,a) ->
