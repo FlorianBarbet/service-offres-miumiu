@@ -1,5 +1,3 @@
-# TODO mettre à jour
-
 # Creer Entreprise
 
 POST /entreprise
@@ -66,7 +64,7 @@ body:
 	"end_at":"2021-03-21",
 	"id_contrat":"a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
 	"contact":"toto@norsys.fr"
-	"duree":null
+	"duree" : null
 }
 
 response : 201 | 400 | 403
@@ -185,7 +183,7 @@ response :
             "code_postal": 59800,
             "ville": "LILLE"
         },
-		....
+		...
     ]
 }
 ```
