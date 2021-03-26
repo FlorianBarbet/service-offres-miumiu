@@ -66,7 +66,6 @@ module Month = struct
 
 end
 
-
 type month_types = 
 | PLAIN of Month.t
 | NUMERIC of int [@@deriving show, yojson]
@@ -78,51 +77,51 @@ let month_translator = function
 let int_of_month_types = function
   | NUMERIC i ->  i
   | PLAIN m -> Month.int_of_month m
-  
 
 type t = {
   day : int;
   month : month_types;
   year : int
 }[@@deriving show, yojson]
-let day_validator date  = match (date.month |> month_translator) with
-| Some m ->  ( m |> Month.informations ~years:date.year ).end_at_day |> Month.translate_month_type >= date.day
-| None -> false
 
-let make date = if day_validator date then Some date else None
-let list_of_date l = 
-  let  day   = List.nth l 2
-  and  month = List.nth l 1
-  and  year  = List.nth l 0
-    in Option.get @@ make {day;month = NUMERIC month ;year}
-    
-
+let make =
+  let day_validator date  = match (date.month |> month_translator) with
+| Some m -> if ( m |> Month.informations ~years:date.year ).end_at_day |> Month.translate_month_type >= date.day then Some date else None
+| None -> None in day_validator
 
 let from_triple (day,month,year) = make {day;month;year}
 
-let of_string str = (*let _ = print_endline str in*) str |> String.split_on_char '-' |> List.map int_of_string |> list_of_date
+let of_string str = 
+  let list_of_date l ~is_neg_year= 
+    let  day   = List.nth l 2 
+    and  month = List.nth l 1
+    and  year  = List.nth l 0 * if is_neg_year then -1 else 1
+      in Option.get @@ make {day;month = NUMERIC month ;year} in
+  let first_char = String.get str 0  in
+  let format_str = if first_char = '-' then String.sub str 1 @@String.length str -1 else str in 
+  format_str |> String.split_on_char '-' |> List.map int_of_string |> list_of_date ~is_neg_year:(first_char = '-')
 
-let string_of_date date = 
-  let dd = string_of_int @@ date.day
-  and mm = string_of_int @@ int_of_month_types @@ date.month
-  and yyyy = string_of_int @@ date.year in
-  let mm = match String.length mm with 
-            | e when e < 2 -> "0"^mm
-            | _ -> mm in
-  let _ =  if Infra.Environment.log_level = (Some Logs.Debug) then print_endline @@ " DATE  "^yyyy^"-"^mm^"-"^dd else () in
-    yyyy^"-"^mm^"-"^dd
-let show = string_of_date
+let show =
+  let string_of_date date = 
+    let dd = string_of_int @@ date.day
+    and mm = string_of_int @@ int_of_month_types @@ date.month
+    and yyyy = string_of_int @@ date.year in
+    let mm = match String.length mm with 
+              | e when e < 2 -> "0"^mm
+              | _ -> mm in
+    let _ =  if Infra.Environment.log_level = (Some Logs.Debug) then print_endline @@ "MAKE DATE  "^yyyy^"-"^mm^"-"^dd else () in
+      yyyy^"-"^mm^"-"^dd in string_of_date
+
 let pp ppf date = Format.pp_print_string ppf (show date)
 
-let now_format () =
-  let curr = (Unix.gmtime @@ Unix.time ()) in
-  let year = curr.tm_year+1900
-  and month = NUMERIC (curr.tm_mon+1)
-  and day = curr.tm_mday in
-  {day ;month;year}
-
-
-let now () = make @@ now_format ()
+let now () =
+  let now_format () =
+    let curr = (Unix.gmtime @@ Unix.time ()) in
+    let year = curr.tm_year+1900
+    and month = NUMERIC (curr.tm_mon+1)
+    and day = curr.tm_mday in
+    {day ;month;year} in
+  Option.get @@ make @@ now_format () (*now should be correct every time so never equals to NONE*)
 
 let compare date1 date2 = 
   match compare date1.year date2.year with
@@ -137,7 +136,8 @@ let diff date1 date2 =
   let day = date1.day - date2.day
   and month = ( fn_nb_day_in_month date1) - ( fn_nb_day_in_month date2)
   and year = (nb_day_years date1) - (nb_day_years date2) in
-    day+month+year
+  day+month+year
+
 
 module WeekDay = struct 
   type t = 

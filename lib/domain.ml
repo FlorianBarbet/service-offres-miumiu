@@ -3,7 +3,6 @@ let parser str= (*it's used to parse data from DB into our domain*)
   let get_lt_from_fold (lt,_)= lt in  
   String.split_on_char ',' str 
   |> List.fold_left (fun (lt,sub) s -> 
-
     match String.get s 0 with
     | '"' when String.get s @@ String.length s -1 != '"' -> (lt,sub^(String.sub s 1 @@ String.length s -1))  
     | _ when String.get s @@ String.length s -1 = '"' -> 
@@ -15,6 +14,9 @@ let parser str= (*it's used to parse data from DB into our domain*)
 
 module Uuid = struct
   include Uuidm
+    (* This Source Code Form is subject to the terms of the Mozilla Public License,
+   v. 2.0. If a copy of the MPL was not distributed with this file, You can
+   obtain one at https://mozilla.org/MPL/2.0/ *)
 
   let make uuid_string =
     Uuidm.of_string uuid_string |> Option.to_result ~none:"Invalid_Uuid"
@@ -28,7 +30,7 @@ module Uuid = struct
 end
 
 module Email = struct
-  (* This Source Code Form is subject to the terms of the Mozilla Public License,
+    (* This Source Code Form is subject to the terms of the Mozilla Public License,
    v. 2.0. If a copy of the MPL was not distributed with this file, You can
    obtain one at https://mozilla.org/MPL/2.0/ *)
   type t = Emile.address [@@deriving show]
@@ -52,10 +54,10 @@ struct
     id : Uuid.t;
     libelle : string;
     description : string;
-    numero : string;(* faire un module expres pour verifier le format*)
-    rue : string; (* possible de faire une verification avec une api on verra *)
-    code_postal : int; (* faire un module expres pour verifier le format*)
-    ville : string (* possible de faire une verification avec une api en fonction du CP on verra*)
+    numero : string;
+    rue : string; 
+    code_postal : int;
+    ville : string 
   }
   [@@deriving make, show, yojson]
 
@@ -85,15 +87,14 @@ struct
       make ~id ~libelle ~description ~numero ~rue ~code_postal ~ville 
 
   let to_yojson_as_list ent = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc ["entreprises",`List  
-  ( List.map (fun a -> to_yojson a) ent)]
-   
+  ( List.map (fun a -> to_yojson a) ent)]   
 end
 
 module Contrat =
 struct 
   type t = {
     id : Uuid.t;
-    sigle : string; (* faire un module specifique*)
+    sigle : string;
     description : string
   }
   [@@deriving make, show, yojson]
@@ -143,12 +144,12 @@ module Offre = struct
         "id", (Uuid.to_yojson offre.id); 
         "titre", `String offre.titre;
         "description", `String offre.description;
-        "created_at", `String (Date.show  offre.created_at) ;
-        "end_at",  `String (Date.show  offre.end_at);
+        "created_at", `String (Date.show offre.created_at) ;
+        "end_at",  `String (Date.show offre.end_at);
         "entreprise",Entreprise.to_yojson offre.entreprise;
         "contrat", Contrat.to_yojson offre.contrat;
         "duree", from_option_int offre.duree
-      ] 
+      ]
 
   let to_yojson_as_list offres = Yojson.Safe.from_string @@ Yojson.Safe.to_string @@ `Assoc 
   ( List.map (fun (ope,a) ->
@@ -159,11 +160,6 @@ module Offre = struct
 
       (string_of_float ranking)^"#"^Uuid.show a.id,to_yojson a) offres)
 
-
-(*  let from_string_child ~entreprise_str ~contrat_str = 
-    let entreprise = Entreprise.of_string entreprise_str
-    and contrat = Contrat.of_string contrat_str in make ~entreprise ~contrat
-*)
   module Disable = struct
     type t = {
       id:Uuid.t;
@@ -173,11 +169,8 @@ module Offre = struct
     
     let of_pair (id,titre,membre_id) = make ~id ~titre ~membre_id
     let to_list_yojson (lt:t list) =  Yojson.Safe.from_string @@ Yojson.Safe.to_string @@
-      `Assoc (List.map (fun t -> (Uuid.show t.id),`Assoc["id",(Uuid.to_yojson t.id);"titre",`String t.titre]) lt)  
-
+      `Assoc (List.map (fun t -> (Uuid.show t.id),`Assoc["id",(Uuid.to_yojson t.id);"titre",`String t.titre]) lt)
   end
-  
-    
 end
 
 let empty_yojson = `Assoc[]

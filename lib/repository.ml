@@ -265,7 +265,7 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |>
       [%rapper get_many
         {sql|
-            SELECT @string{ville} FROM "Entreprise"
+            SELECT DISTINCT @string{ville} FROM "Entreprise"
           |sql}]  
           
     let get_disable_offres = 

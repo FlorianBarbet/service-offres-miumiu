@@ -3,6 +3,8 @@ open Offre
 
 module type OService = sig
   val date_arbitrary : Offre__Date.t option QCheck.arbitrary
+  val two_date_arbitrary : (Offre__Date.t option * Offre__Date.t option) QCheck.arbitrary
+
 end
 
 module Service:OService = struct
@@ -32,6 +34,5 @@ module Service:OService = struct
       | None -> "No Date."
       | Some d -> Date.show d
     let date_arbitrary = QCheck.make ~print:date_print date_gen
-
-
+    let two_date_arbitrary = QCheck.pair date_arbitrary date_arbitrary
 end

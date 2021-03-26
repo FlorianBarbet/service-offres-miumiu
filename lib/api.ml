@@ -53,7 +53,7 @@ let create_contrat req ~membre_id=
   | None -> Response.make ~status:`Bad_request () |> Lwt.return
   | Some json ->
       let open Yojson.Safe.Util in
-      let sigle = json |> member "sigle" |> to_string
+      let sigle = json |> member "sigle" |> to_string |> String.uppercase_ascii
       and description = json |> member "description" |> to_string in
       OffreService.create_contrat ~sigle ~description
       >>= (function
@@ -71,12 +71,12 @@ let create_entreprise req ~membre_id=
   | Some json ->
       let open Yojson.Safe.Util in
       
-      let libelle = json |> member "libelle" |> to_string
+      let libelle = json |> member "libelle" |> to_string 
       and description = json |> member "description" |> to_string
-      and numero = json |> member "numero" |> to_string
-      and rue = json |> member "rue" |> to_string
+      and numero = json |> member "numero" |> to_string |> String.uppercase_ascii
+      and rue = json |> member "rue" |> to_string |> String.uppercase_ascii
       and code_postal = json |> member "code_postal" |> to_int
-      and ville = json |> member "ville" |> to_string
+      and ville = json |> member "ville" |> to_string |> String.uppercase_ascii
       
      in
       OffreService.create_entreprise ~libelle ~description ~numero ~rue ~code_postal ~ville
@@ -96,7 +96,7 @@ let create_entreprise req ~membre_id=
     | Some json ->
         let open Yojson.Safe.Util in
         
-        let titre = json |> member "titre" |> to_string
+        let titre = json |> member "titre" |> to_string |> String.uppercase_ascii
         and description = json |> member "description" |> to_string
         and duree = json |> member "duree" |> to_int_option  
         and contact_str = json |> member "contact" |> to_string
@@ -263,5 +263,5 @@ let create_entreprise req ~membre_id=
 
   let add_routes app = List.fold_left (fun app route -> route app) app routes
 
-  let _ = print_endline @@ "Date server start : "^Date.show @@ Option.get @@ Date.now ()
+  let _ = print_endline @@ "Date server start : "^Date.show @@ Date.now ()
 
