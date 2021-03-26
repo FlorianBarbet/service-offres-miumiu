@@ -150,17 +150,18 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
     | Error result ->
       let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
 
-  let get_disable_offres () =
+  let get_disable_offres ~membre_id =
     let open Lwt in
-    
-    OffreRepository.get_disable_offres ()
-    >>= (function
-    | Ok db_result -> 
-      let convert = List.map (fun p -> D.Offre.Disable.of_pair p) db_result in
-      let lt = D.Offre.Disable.to_list_yojson @@ convert  in
-      let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
-    | Error result ->
-      let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
+    D.Uuid.make membre_id |> uuid_traitement (fun membre_id->
+      OffreRepository.get_disable_offres ~membre_id
+      >>= (function
+      | Ok db_result -> 
+        let convert = List.map (fun p -> D.Offre.Disable.of_pair p) db_result in
+        let lt = D.Offre.Disable.to_list_yojson @@ convert  in
+        let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
+      | Error result ->
+        let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
+    )
 
   let get_entreprises () =
     let open Lwt in

@@ -1,5 +1,7 @@
 open Unix
 
+let print_debug str = Infra.Environment.log_level |> function | Some Logs.Debug -> print_endline @@ str | _ -> ()
+
 module Month = struct
   type t = 
   | JANUARY
@@ -78,6 +80,12 @@ let int_of_month_types = function
   | NUMERIC i ->  i
   | PLAIN m -> Month.int_of_month m
 
+let string_of_month_types m = 
+  let format mm = 
+    match String.length mm with 
+    | e when e < 2 -> "0"^mm
+    | _ -> mm in format@@string_of_int@@int_of_month_types m
+
 type t = {
   day : int;
   month : month_types;
@@ -104,12 +112,9 @@ let of_string str =
 let show =
   let string_of_date date = 
     let dd = string_of_int @@ date.day
-    and mm = string_of_int @@ int_of_month_types @@ date.month
+    and mm = string_of_month_types @@ date.month
     and yyyy = string_of_int @@ date.year in
-    let mm = match String.length mm with 
-              | e when e < 2 -> "0"^mm
-              | _ -> mm in
-    let _ =  if Infra.Environment.log_level = (Some Logs.Debug) then print_endline @@ "MAKE DATE  "^yyyy^"-"^mm^"-"^dd else () in
+    let _ = print_debug @@ "Show DATE  "^yyyy^"-"^mm^"-"^dd in
       yyyy^"-"^mm^"-"^dd in string_of_date
 
 let pp ppf date = Format.pp_print_string ppf (show date)

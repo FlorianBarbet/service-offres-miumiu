@@ -209,11 +209,11 @@ let create_entreprise req ~membre_id=
       |> Lwt.return
     | Ok res -> Response.of_json res |> Lwt.return)
   
-  let get_disable_offres req = 
+  let get_disable_offres req ~membre_id = 
     let open Lwt in
     let open Yojson.Safe.Util in
     
-    OffreService.get_disable_offres () 
+    OffreService.get_disable_offres ~membre_id 
     >>= (function
     | Error e ->
       json_response_of_a_string "error" e ~status:`Forbidden
@@ -253,7 +253,7 @@ let create_entreprise req ~membre_id=
     ; App.get "/offre/list/:ville" get_by_ville
     ; App.get "/offre/detail/:id_offre" get_by_id
     ; App.get "/offre/villes" get_villes
-    ; App.get "/offre/disable" get_disable_offres
+    ; App.get "/offre/disable" (check_auth@@get_disable_offres)
     ; App.get "/entreprise" get_entreprises
     ; App.get "/contrat" get_contrats
     ; App.put "/disable-offre/:id_offre" (check_auth @@ enable_offre)
