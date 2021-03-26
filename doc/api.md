@@ -145,10 +145,9 @@ response example:
     },
     "contrat": {
         "id": "23488ef9-dafd-4340-a4da-a2e0b0a44b8e",
-        "sigle": "CDD",
-        "description": "CDD"
-    },
-    "duree": ""
+        "sigle": "CDI",
+        "description": "CDI"
+    }
 }
 ```
 
