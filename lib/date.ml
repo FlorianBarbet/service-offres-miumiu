@@ -1,6 +1,5 @@
 open Unix
 
-let print_debug str = Infra.Environment.log_level |> function | Some Logs.Debug -> print_endline @@ str | _ -> ()
 
 module Month = struct
   type t = 
@@ -114,7 +113,7 @@ let show =
     let dd = string_of_int @@ date.day
     and mm = string_of_month_types @@ date.month
     and yyyy = string_of_int @@ date.year in
-    let _ = print_debug @@ "Show DATE  "^yyyy^"-"^mm^"-"^dd in
+    let _ = Infra.print_debug @@ "Show DATE  "^yyyy^"-"^mm^"-"^dd in
       yyyy^"-"^mm^"-"^dd in string_of_date
 
 let pp ppf date = Format.pp_print_string ppf (show date)

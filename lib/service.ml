@@ -54,7 +54,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       >>= (function
       | Ok db_result ->
         let offre = match db_result with | Some v -> D.Offre.to_yojson v | None -> D.empty_yojson in
-        (*let _ = print_endline @@ Yojson.Safe.show offre in*) Lwt.return_ok (offre )
+        let _ = Infra.print_debug @@ Yojson.Safe.show offre in Lwt.return_ok (offre )
       | Error result -> 
         let _ = print_endline (Caqti_error.show result) in Lwt.return_error "An error has occurs")
     )

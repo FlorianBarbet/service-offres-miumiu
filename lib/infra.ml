@@ -203,3 +203,5 @@ module RestConfiguration : REST = struct
     Option.value ~default @@ List.fold_left (fun acc (k,v) -> if k = str then Some v else acc ) None value.requests
 
 end
+
+let print_debug str = Environment.log_level |> function | Some Logs.Debug -> print_endline @@ str | _ -> ()
