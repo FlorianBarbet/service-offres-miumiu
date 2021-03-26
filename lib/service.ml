@@ -156,7 +156,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       OffreRepository.get_disable_offres ~membre_id
       >>= (function
       | Ok db_result -> 
-        let convert = List.map (fun p -> D.Offre.Disable.of_pair p) db_result in
+        let convert = List.map (fun p -> D.Offre.Disable.of_nuplet p) db_result in
         let lt = D.Offre.Disable.to_list_yojson @@ convert  in
         let _ = print_endline @@ Yojson.Safe.show @@ lt in Lwt.return_ok (lt)
       | Error result ->

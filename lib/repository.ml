@@ -68,8 +68,9 @@ module type OFFRE = sig
   unit -> (string list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
 
   val get_disable_offres :
-  membre_id:Offre__Domain.Uuid.t ->
-    ((D.Uuid.t * string * D.Uuid.t) list, [> Caqti_error.call_or_retrieve ]) result Lwt.t
+  membre_id:D.Uuid.t ->
+    ((D.Uuid.t * string * D.Uuid.t * D.Entreprise.t * D.Contrat.t * Date.t * Date.t) list, 
+    [> Caqti_error.call_or_retrieve ]) result Lwt.t
 
   val get_entreprises :
   unit ->
@@ -273,7 +274,17 @@ module Offre (Connection : Caqti_lwt.CONNECTION) : OFFRE = struct
       |>
       [%rapper get_many
         {sql|
-            SELECT @Uuid{id}, @string{titre}, @Uuid{membre_id} FROM "Offre" WHERE end_at > NOW() AND not active AND membre_id = %Uuid{membre_id}
+            SELECT offre.@Uuid{id}, 
+                   @string{titre}, 
+                   @Uuid{membre_id},
+                   @Entreprise{entreprise},
+                   @Contrat{contrat},
+                   @Date{created_at}, 
+                   @Date{end_at}
+            FROM "Offre" offre
+            JOIN "Entreprise" entreprise ON entreprise.id = offre.id_entreprise
+            JOIN "Contrat" contrat ON contrat.id = offre.id_contrat
+            WHERE end_at > NOW() AND not active AND membre_id = %Uuid{membre_id}
           |sql}]
 
     let get_entreprises =

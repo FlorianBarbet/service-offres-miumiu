@@ -6,12 +6,14 @@ POST /entreprise
 ```
 head : {"jwt":"Un token valide"}
 {
-	"libelle":"Norsys",
+	"libelle":"Ma Petite Entreprise",
 	"numero":"5 Bis"
 	"rue":"avenue Jean-Jaurès",
 	"code_postal":"59800",
 	"ville":"LILLE"
 }
+
+response : 201 | 400 | 403
 ```
 # Creer type contrat
 
@@ -22,21 +24,27 @@ head : {"jwt":"Un token valide"}
 		"sigle":"CDD",
 		"description":"Contrat a duree determine"
 }
+
+response : 201 | 400 | 403
 ```
 
 # Creer Offre
 
-POST /offre/:id_entreprise/:sigle_contrat
+POST /offre/:id_entreprise/:id_contrat
 ```
 head : {"jwt":"Un token valide"}
 body : {
 "titre":"Tech Lead Java H/F - Norsys",
 "description":"Lors de cette mission vous allez être confronté à ...",
-"created_at":"13-03-2021",
-"end_at":"14-03-2021",
+"created_at":"2021-03-10",
+"end_at":"2021-03-12",
 "duree":18,
 "contact":"toto@norsys.fr"
 }
+
+la duree est optionnel
+
+response : 201 | 400 | 403
 ```
 
 /!\ 
@@ -48,9 +56,16 @@ PUT /offre/:id_offre
 ```
 head : {"jwt":"Un token valide"}
 {
-	"titre":"Tech Lead OCaml H/F - Norsys",
-    "end_at":"22-06-2021"
+"titre":"Tech Lead OCaml H/F - Norsys",
+"description":"Un choix de roi ...",
+"created_at":"2021-03-10",
+"end_at":"2021-03-21",
+"id_contrat":"a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
+"contact":"toto@norsys.fr"
+"duree":null
 }
+
+response : 201 | 400 | 403
 ```
 
 -> Le body contient les éléments à modifier il peut donc être similaire à la création si on compte tout modifier

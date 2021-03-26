@@ -82,24 +82,18 @@ module Offre : sig
   
   val to_yojson : t -> Yojson.Safe.t
   val to_yojson_as_list : (int * t) list -> Yojson.Safe.t
-  (*val from_string_child : entreprise_str:string ->
-    contrat_str:string ->
-    ?id:Uuid.t ->
-    titre:string ->
-    description:string ->
-    created_at:Offre__Date.t ->
-    end_at:Offre__Date.t ->
-    contact:Email.t ->
-    ?duree:int -> unit -> t
-*)
   
     module Disable : sig
       type t = {
         id:Uuid.t;
         titre:string;
-        membre_id:Uuid.t
+        membre_id:Uuid.t;
+        entreprise : Entreprise.t;
+        contrat : Contrat.t;
+        created_at : Date.t;
+        end_at : Date.t  
       }[@@deriving make, show, yojson]
-      val of_pair : Uuid.t * string * Uuid.t -> t
+      val of_nuplet : Uuid.t * string * Uuid.t * Entreprise.t * Contrat.t * Offre__Date.t * Offre__Date.t -> t
       val to_list_yojson : t list-> Yojson.Safe.t
     end
   

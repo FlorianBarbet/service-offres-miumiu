@@ -164,12 +164,27 @@ module Offre = struct
     type t = {
       id:Uuid.t;
       titre:string;
-      membre_id:Uuid.t
+      membre_id:Uuid.t;
+      entreprise : Entreprise.t;
+      contrat : Contrat.t;
+      created_at : Date.t;
+      end_at : Date.t  
     }[@@deriving make, show, yojson]
     
-    let of_pair (id,titre,membre_id) = make ~id ~titre ~membre_id
+    let of_nuplet (id,titre,membre_id,entreprise,contrat,created_at,end_at) = make ~id ~titre ~membre_id ~entreprise ~contrat ~created_at ~end_at
+
+    let to_yojson t =
+      `Assoc[
+        "id",(Uuid.to_yojson t.id)
+        ; "titre",`String t.titre
+        ; "entreprise",Entreprise.to_yojson t.entreprise
+        ; "contrat", Contrat.to_yojson t.contrat
+        ; "created_at",`String (Date.show t.created_at) 
+        ; "end_at",  `String (Date.show t.end_at) 
+        ]
+
     let to_list_yojson (lt:t list) =  Yojson.Safe.from_string @@ Yojson.Safe.to_string @@
-      `Assoc (List.map (fun t -> (Uuid.show t.id),`Assoc["id",(Uuid.to_yojson t.id);"titre",`String t.titre]) lt)
+      `Assoc (List.map (fun t -> (Uuid.show t.id),(to_yojson t)) lt)
   end
 end
 
