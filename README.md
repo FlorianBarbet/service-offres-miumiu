@@ -30,6 +30,11 @@ For the nexts you should edit setEnv.sh script to match with your own environmen
 ```sh
 $ . setEnv.sh 
 ```
+OR
+```sh
+$ source setEnv.sh 
+```
+
 
 * Put the script into init.d to keep variables at each reboot ( need to be sudoers and system reboot )
 ```sh

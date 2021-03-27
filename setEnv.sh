@@ -10,4 +10,3 @@ export FRONT_URI="http://localhost:8080"
 export AUTH_SERVICE_URI="http://localhost:3000"
 
 export LEVEL="DEBUG"
- 
