@@ -4,8 +4,8 @@
   "description": "Service offre to DevHouse App",
   "license": "MPL-2.0",
   "scripts": {
-    "start": "esy ; esy x offre",
-    "test": "esy ; esy x test-offre"
+    "start": "esy x offre",
+    "test": "esy x test-offre"
   },
   "dependencies": {
     "@opam/caqti": "1.2.3",
