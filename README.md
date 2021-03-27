@@ -28,10 +28,10 @@ For the nexts you should edit setEnv.sh script to match with your own environmen
 
 * Script in the app repository ( need to reboot the terminal )
 ```sh
-$ ./setEnv.sh 
+$ . setEnv.sh 
 ```
 
-* Put the script into init.d to keep variables at each reboot ( need to be sudoers )
+* Put the script into init.d to keep variables at each reboot ( need to be sudoers and system reboot )
 ```sh
 $ sudo cp setEnv.sh /etc/init.d/set_service_offre_env_variables.sh
 ```
