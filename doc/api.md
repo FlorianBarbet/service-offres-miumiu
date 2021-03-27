@@ -181,8 +181,7 @@ response :
             "rue": "RUE EDOUARD DELESALLE",
             "code_postal": 59800,
             "ville": "LILLE"
-        },
-		...
+        },...
     ]
 }
 ```

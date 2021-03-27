@@ -131,8 +131,8 @@ let create_entreprise req ~membre_id=
         and created_at_str = json |> member "created_at" |> to_string_option
         and end_at_str = json |> member "end_at" |> to_string_option
 
-        and entreprise_opt = json |> member "ent" |> to_string_option
-        and contrat_opt = json |> member "ent" |> to_string_option
+        and entreprise_opt = json |> member "id_entreprise" |> to_string_option
+        and contrat_opt = json |> member "id_contrat" |> to_string_option
 
         and id = Router.param req "id_offre"
         in

@@ -41,10 +41,10 @@ module Entreprise : sig
     id : Uuid.t;
     libelle : string;
     description : string;
-    numero : string;(* faire un module expres pour verifier le format*)
-    rue : string; (* possible de faire une verification avec une api on verra *)
-    code_postal : int; (* faire un module expres pour verifier le format*)
-    ville : string (* possible de faire une verification avec une api en fonction du CP on verra*)
+    numero : string;
+    rue : string; 
+    code_postal : int;
+    ville : string
   }
   [@@deriving make, show, yojson]
   val of_string : string -> t
@@ -56,7 +56,7 @@ end
 module Contrat : sig 
   type t = {
     id : Uuid.t;
-    sigle : string; (* faire un module specifique*)
+    sigle : string; 
     description : string
   }
   [@@deriving make, show, yojson]

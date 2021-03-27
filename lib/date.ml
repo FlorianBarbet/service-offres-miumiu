@@ -125,7 +125,7 @@ let now () =
     and month = NUMERIC (curr.tm_mon+1)
     and day = curr.tm_mday in
     {day ;month;year} in
-  Option.get @@ make @@ now_format () (*now should be correct every time so never equals to NONE*)
+  Option.get @@ make @@ now_format () (*now should be correct every time so never equals to None*)
 
 let compare date1 date2 = 
   match compare date1.year date2.year with

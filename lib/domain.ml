@@ -3,13 +3,15 @@ let parser str= (*it's used to parse data from DB into our domain*)
   let get_lt_from_fold (lt,_)= lt in  
   String.split_on_char ',' str 
   |> List.fold_left (fun (lt,sub) s -> 
+    let last_char s = String.get s @@ String.length s -1 in
     match String.get s 0 with
-    | '"' when String.get s @@ String.length s -1 != '"' -> (lt,sub^(String.sub s 1 @@ String.length s -1))  
-    | _ when String.get s @@ String.length s -1 = '"' -> 
-      let rm_quote =( String.sub s (if String.get s 0 = '"' then 1 else 0) @@ String.length s -1) in
-      let clean_txt = if String.get rm_quote @@ String.length rm_quote -1 = '"' then (String.sub rm_quote 0 @@ String.length rm_quote-1) else rm_quote in
-      ((if sub <> "" then sub^", "^clean_txt else clean_txt)::lt,"")
-    | _ when sub <> "" -> (lt,sub ^", " ^ s)
+    | '"' when last_char@@s != '"' -> (lt,sub^(String.sub s 1 @@ String.length s -1))  
+    | _   when last_char@@s  = '"' -> 
+            let rm_quote =( String.sub s (if String.get s 0 = '"' then 1 else 0) @@ String.length s -1) in
+            let rm_last_quote = (String.sub rm_quote 0 @@ String.length rm_quote-1) in
+            let clean_txt = if last_char@@rm_quote = '"' then rm_last_quote else rm_quote in
+              ((if sub <> "" then sub ^ ", " ^ clean_txt else clean_txt)::lt,"")
+    | _ when sub <> "" -> (lt,sub ^ ", " ^ s)
     | _ -> (s::lt,sub)) ([],"") |> get_lt_from_fold |> List.rev
 
 module Uuid = struct
