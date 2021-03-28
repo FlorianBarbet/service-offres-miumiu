@@ -1,0 +1,453 @@
+{
+	"info": {
+		"_postman_id": "55136195-b13b-475d-b8aa-79bac9757c13",
+		"name": "Service offre",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "POST http://localhost:3030/contrat - creer contrat",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWFiMWQ4MS0xNGZhLTQyYzItYjQ4YS00ZTQ0ZmQ2MTgyM2UiLCJpc3MiOiJtaXVtaXUiLCJpYXQiOiIxNjE2NTQxMzU0IiwiZXhwIjoiMTYxNjgwMDU1NCJ9.oRETQfmn1-3l4thrrFyCuxHd6ZmhwCBZQB2ZjY9jlFohLpk39574Opm2hBdxZb6e44_ctdDkFL5IUkJeS9ZK1g",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sigle\":\"CDD\",\r\n    \"description\":\"Contrat a duree determine\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/contrat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"contrat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST http://localhost:3030/entreprise - creer entreprise",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWFiMWQ4MS0xNGZhLTQyYzItYjQ4YS00ZTQ0ZmQ2MTgyM2UiLCJpc3MiOiJtaXVtaXUiLCJpYXQiOiIxNjE2NTQxMzU0IiwiZXhwIjoiMTYxNjgwMDU1NCJ9.oRETQfmn1-3l4thrrFyCuxHd6ZmhwCBZQB2ZjY9jlFohLpk39574Opm2hBdxZb6e44_ctdDkFL5IUkJeS9ZK1g",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"libelle\":\"Square-IT\",\r\n    \"description\":\"Bien le bonjour capitaine !\",\r\n    \"numero\" : \"1 TER\",\r\n    \"rue\" : \"RUE DU COLONNEL\",\r\n    \"code_postal\" : 59800,\r\n    \"ville\" : \"LILLE\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/entreprise",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"entreprise"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST http://localhost:3030/offre/:id_entreprise/:id_contrat - creer offre",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWFiMWQ4MS0xNGZhLTQyYzItYjQ4YS00ZTQ0ZmQ2MTgyM2UiLCJpc3MiOiJtaXVtaXUiLCJpYXQiOiIxNjE2NTQxMzU0IiwiZXhwIjoiMTYxNjgwMDU1NCJ9.oRETQfmn1-3l4thrrFyCuxHd6ZmhwCBZQB2ZjY9jlFohLpk39574Opm2hBdxZb6e44_ctdDkFL5IUkJeS9ZK1g",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"titre\":\"CDD Développeur (H/F) - 18 mois - Square-IT\",\r\n    \"description\":\"Une bonne maitrise c'est ce qu'on recherche!\",\r\n    \"contact\" : \"unananas@dans.lamer\",\r\n    \"created_at\" : \"2030-03-10\",\r\n    \"end_at\" : \"2030-03-15\",\r\n    \"duree\":18\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/offre/15ef1436-3857-4e4c-8dab-cc7b76be1a98/23488ef9-dafd-4340-a4da-a2e0b0a44b8e",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"offre",
+						"15ef1436-3857-4e4c-8dab-cc7b76be1a98",
+						"23488ef9-dafd-4340-a4da-a2e0b0a44b8e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT http://localhost:3030/offre/:id_offre - modifier offre",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWFiMWQ4MS0xNGZhLTQyYzItYjQ4YS00ZTQ0ZmQ2MTgyM2UiLCJpc3MiOiJtaXVtaXUiLCJpYXQiOiIxNjE2NTQxMzU0IiwiZXhwIjoiMTYxNjgwMDU1NCJ9.oRETQfmn1-3l4thrrFyCuxHd6ZmhwCBZQB2ZjY9jlFohLpk39574Opm2hBdxZb6e44_ctdDkFL5IUkJeS9ZK1g",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n    \"description\":\"Finalement ce sera un CDI\",\r\n    \"duree\":null,\r\n    \"id_contrat\":\"b5513b0d7-0519-4b86-addf-0f7ee0985460\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/offre/a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"offre",
+						"a465b0d7-05e9-4a86-bdaf-0f7ee09b4137"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT http://localhost:3030/disable-offre/1 - reactiver une offre",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWFiMWQ4MS0xNGZhLTQyYzItYjQ4YS00ZTQ0ZmQ2MTgyM2UiLCJpc3MiOiJtaXVtaXUiLCJpYXQiOiIxNjE2NTQxMzU0IiwiZXhwIjoiMTYxNjgwMDU1NCJ9.oRETQfmn1-3l4thrrFyCuxHd6ZmhwCBZQB2ZjY9jlFohLpk39574Opm2hBdxZb6e44_ctdDkFL5IUkJeS9ZK1g",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/disable-offre/a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"disable-offre",
+						"a465b0d7-05e9-4a86-bdaf-0f7ee09b4137"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE http://localhost:3030/offre/:id_offre - desactiver offre",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWFiMWQ4MS0xNGZhLTQyYzItYjQ4YS00ZTQ0ZmQ2MTgyM2UiLCJpc3MiOiJtaXVtaXUiLCJpYXQiOiIxNjE2NTQxMzU0IiwiZXhwIjoiMTYxNjgwMDU1NCJ9.oRETQfmn1-3l4thrrFyCuxHd6ZmhwCBZQB2ZjY9jlFohLpk39574Opm2hBdxZb6e44_ctdDkFL5IUkJeS9ZK1g",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/offre/a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"offre",
+						"a465b0d7-05e9-4a86-bdaf-0f7ee09b4137"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET http://localhost:3030/offre/detail/:id_offre - afficher une offre via ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/offre/detail/a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"offre",
+						"detail",
+						"a465b0d7-05e9-4a86-bdaf-0f7ee09b4137"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET http://localhost:3030/offre/list/:ville - Afficher liste d'offre dans la ville",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/offre/list/LILLE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"offre",
+						"list",
+						"LILLE"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET http://localhost:3030/offre/villes - Lister les villes dans lequelles il y a des offres",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/offre/villes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"offre",
+						"villes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET http://localhost:3030/offre- Lister les offres du membre",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWFiMWQ4MS0xNGZhLTQyYzItYjQ4YS00ZTQ0ZmQ2MTgyM2UiLCJpc3MiOiJtaXVtaXUiLCJpYXQiOiIxNjE2NTQxMzU0IiwiZXhwIjoiMTYxNjgwMDU1NCJ9.oRETQfmn1-3l4thrrFyCuxHd6ZmhwCBZQB2ZjY9jlFohLpk39574Opm2hBdxZb6e44_ctdDkFL5IUkJeS9ZK1g",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/offre",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"offre"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET http://localhost:3030/entreprise - Liste les entreprises existantes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/entreprise",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"entreprise"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET http://localhost:3030/contrat - Liste contrats",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/contrat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"contrat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET http://localhost:3030/offre/disable - Liste des offres desactivées",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmYWFiMWQ4MS0xNGZhLTQyYzItYjQ4YS00ZTQ0ZmQ2MTgyM2UiLCJpc3MiOiJtaXVtaXUiLCJpYXQiOiIxNjE2NTQxMzU0IiwiZXhwIjoiMTYxNjgwMDU1NCJ9.oRETQfmn1-3l4thrrFyCuxHd6ZmhwCBZQB2ZjY9jlFohLpk39574Opm2hBdxZb6e44_ctdDkFL5IUkJeS9ZK1g",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/offre/disable",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"offre",
+						"disable"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
