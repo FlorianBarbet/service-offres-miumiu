@@ -148,7 +148,7 @@ module Offre = struct
           "end_at",  `String (Date.show offre.end_at);
           "entreprise",Entreprise.to_yojson offre.entreprise;
           "contrat", Contrat.to_yojson offre.contrat;
-          "contact", Email.to_yojson offre.contact;]
+          "contact", `String (Email.show@@ offre.contact);]
           @@
           Option.value ~default:[] @@Option.bind offre.duree (fun d -> Some ["duree", `Int d])
           )
