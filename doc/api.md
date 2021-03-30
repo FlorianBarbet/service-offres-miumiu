@@ -121,7 +121,9 @@ id is composed of ranking#id_offre
         },
         "contact":"toto@toto.fr",
         "duree": 18
-    },...]
+    },
+    ...
+]
 ```
 
 # Afficher le detail d'une offre
@@ -184,7 +186,8 @@ response :
             "rue": "RUE EDOUARD",
             "code_postal": 59800,
             "ville": "LILLE"
-        },...
+        },
+    ...
     ]
 }
 ```
@@ -202,7 +205,7 @@ response :
         "sigle": "CDD",
         "description": "Contrat a Duree Determine"
     },
-	....
+	...
 }
 ```
 
