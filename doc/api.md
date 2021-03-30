@@ -5,11 +5,11 @@ POST /entreprise
 head : {"jwt":"Un token valide"}
 body :
 {
-	"libelle":"Ma Petite Entreprise",
-	"numero":"5 Bis",
-	"rue":"avenue Jean-Jaurès",
-	"code_postal":"59800",
-	"ville":"LILLE"
+    "libelle":"Ma Petite Entreprise",
+    "numero":"5 Bis",
+    "rue":"avenue Jean-Jaurès",
+    "code_postal":"59800",
+    "ville":"LILLE"
 }
 
 response : 201 | 400 | 403
@@ -21,8 +21,8 @@ POST /contrat
 head : {"jwt":"Un token valide"}
 body :
 {
-	"sigle":"CDD",
-	"description":"Contrat a duree determine"
+    "sigle":"CDD",
+    "description":"Contrat a duree determine"
 }
 
 response : 201 | 400 | 403
@@ -35,12 +35,12 @@ POST /offre/:id_entreprise/:id_contrat
 head : {"jwt":"Un token valide"}
 body :
  {
-	"titre":"Tech Lead Java H/F - ABCD",
-	"description":"Bienvenido",
-	"created_at":"2021-03-10",
-	"end_at":"2021-03-12",
-	"duree":18,
-	"contact":"toto@abcd.fr"
+    "titre":"Tech Lead Java H/F - ABCD",
+    "description":"Bienvenido",
+    "created_at":"2021-03-10",
+    "end_at":"2021-03-12",
+    "duree":18,
+    "contact":"toto@abcd.fr"
 }
 
 la duree est optionnel
@@ -177,7 +177,7 @@ response :
 
 ```json
 {
-	[
+    [
         {
             "id": "15ef1436-3857-4e4c-8dab-cc7b76be1a98",
             "libelle": "Netflix",
@@ -205,7 +205,7 @@ response :
         "sigle": "CDD",
         "description": "Contrat a Duree Determine"
     },
-	...
+    ...
 }
 ```
 
