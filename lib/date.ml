@@ -79,11 +79,11 @@ let int_of_month_types = function
   | NUMERIC i ->  i
   | PLAIN m -> Month.int_of_month m
 
-let string_of_month_types m = 
-  let format mm = 
-    match String.length mm with 
-    | e when e < 2 -> "0"^mm
-    | _ -> mm in format@@string_of_int@@int_of_month_types m
+let format_day_or_month str = 
+  match String.length str with
+  | e when e < 2 -> "0"^str 
+  | _ -> str
+let string_of_month_types m =  format_day_or_month@@string_of_int@@int_of_month_types m
 
 type t = {
   day : int;
@@ -110,7 +110,7 @@ let of_string str =
 
 let show =
   let string_of_date date = 
-    let dd = string_of_int @@ date.day
+    let dd = format_day_or_month@@string_of_int @@ date.day
     and mm = string_of_month_types @@ date.month
     and yyyy = string_of_int @@ date.year in
     let _ = Infra.print_debug @@ "Show DATE  "^yyyy^"-"^mm^"-"^dd in
