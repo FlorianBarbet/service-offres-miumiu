@@ -87,6 +87,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
                 and entreprise_r = (entreprise_opt,offre_entreprise_id) |> opt_traitement            
                 and contrat_r = (contrat_opt,offre_contrat_id) |> opt_traitement
               in
+              (end_at,created_at) |> date_verification (fun () ->
               match (entreprise_r,contrat_r) with
               | (Error entreprise,Error contrat) -> Lwt.return_error @@ "Erreurs : \n-Entreprise id : "^entreprise^"\n-Contrat id : "^contrat
               | (Error entreprise,_) ->             Lwt.return_error @@ "Entreprise id : "^entreprise
@@ -97,6 +98,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
                         | Ok db_result -> Lwt.return_ok ()
                         | Error result -> 
                           let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to update offre")
+          )
           )
       ))
 
