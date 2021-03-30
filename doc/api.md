@@ -60,12 +60,12 @@ body:
 {
     "titre":"Tech",
     "description":"Un choix de roi ...",
-	"created_at":"2021-03-10",
-	"end_at":"2021-03-21",
+    "created_at":"2021-03-10",
+    "end_at":"2021-03-21",
     "id_entreprise":"d856b0d7-05e9-4a86-bdaf-927ae69b8456",
     "id_contrat":"a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
-	"contact":"toto@abcd.fr",
-	"duree" : null
+    "contact":"toto@abcd.fr",
+    "duree" : null
 }
 
 response : 201 | 400 | 403
