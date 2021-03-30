@@ -58,12 +58,13 @@ PUT /offre/:id_offre
 head : {"jwt":"Un token valide"}
 body: 
 {
-	"titre":"Tech Lead OCaml H/F - Norsys",
+	"titre":"Tech Lead OCaml H/F - ABCD",
 	"description":"Un choix de roi ...",
 	"created_at":"2021-03-10",
 	"end_at":"2021-03-21",
 	"id_contrat":"a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
-	"contact":"toto@norsys.fr",
+    "id_entreprise":"d856b0d7-05e9-4a86-bdaf-927ae69b8456",
+	"contact":"toto@abcd.fr",
 	"duree" : null
 }
 

@@ -14,6 +14,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
   let date_verification next= function
   | (d1,d2) when (Date.compare d1 d2 >= 0) -> next ()
   | _ -> Lwt.return_error "Date 1 is not before Date 2"
+  
   let create_contrat ~sigle ~description =
     let open Lwt in
     let id = D.Uuid.v4_gen E.random_seed () in
