@@ -10,6 +10,10 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
   let uuid_traitement next = function
                             | Ok e -> next e 
                             | Error e -> Lwt.return_error "UUID malformed"
+
+  let date_verification next= function
+  | (d1,d2) when (Date.compare d1 d2 >= 0) -> next ()
+  | _ -> Lwt.return_error "Date 1 is not before Date 2"
   let create_contrat ~sigle ~description =
     let open Lwt in
     let id = D.Uuid.v4_gen E.random_seed () in
@@ -35,6 +39,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
       let created_at = Date.of_string created_at_str 
       and end_at = Date.of_string end_at_str
       in
+      (end_at,created_at) |> date_verification (fun () ->
         match D.Email.make contact_str with
         | Error e -> Lwt.return_error e
         | Ok contact -> 
@@ -45,7 +50,7 @@ module Offre (OffreRepository : Repository.OFFRE) = struct
             | Ok db_result -> Lwt.return_ok ()
             | Error result -> 
               let _ = print_endline (Caqti_error.show result) in Lwt.return_error "Unable to create offre"))
-    )))
+    ))))
 
   let get_by_id ~id =
     let open Lwt in
