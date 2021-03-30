@@ -35,12 +35,12 @@ POST /offre/:id_entreprise/:id_contrat
 head : {"jwt":"Un token valide"}
 body :
  {
-	"titre":"Tech Lead Java H/F - Norsys",
+	"titre":"Tech Lead Java H/F - ABCD",
 	"description":"Bienvenido",
 	"created_at":"2021-03-10",
 	"end_at":"2021-03-12",
 	"duree":18,
-	"contact":"toto@norsys.fr"
+	"contact":"toto@abcd.fr"
 }
 
 la duree est optionnel
@@ -101,16 +101,16 @@ id is composed of ranking#id_offre
 [
     "5.47945205479e-05#61e01881-e7a1-46ac-93b4-a8017ba25601": {
         "id": "61e01881-e7a1-46ac-93b4-a8017ba25601",
-        "titre": "CDD Agent d'entretien - Inetum",
+        "titre": "CDD Agent d'entretien - TOTO comp",
         "description": "Avancer avec nous passe par l'hygiène absolue !",
         "created_at": "1980-03-15",
         "end_at": "2030-03-15",
         "entreprise": {
             "id": "15ef1436-3857-4e4c-8dab-cc7b76be1a98",
-            "libelle": "Inetum_",
+            "libelle": "Toto company",
             "description": "Un pas en avant pour le latin !",
             "numero": "17",
-            "rue": "RUE EDOUARD DELESALLE",
+            "rue": "RUE EDOUARD",
             "code_postal": 59800,
             "ville": "LILLE"
         },
@@ -141,7 +141,7 @@ response example:
         "libelle": "OhNo",
         "description": "My bad !",
         "numero": "17",
-        "rue": "RUE EDOUARD DELESALLE",
+        "rue": "RUE EDOUARD",
         "code_postal": 59800,
         "ville": "LILLE"
     },
@@ -181,7 +181,7 @@ response :
             "libelle": "Netflix",
             "description": "On chill devant Cobra Kai ?",
             "numero": "17",
-            "rue": "RUE EDOUARD DELESALLE",
+            "rue": "RUE EDOUARD",
             "code_postal": 59800,
             "ville": "LILLE"
         },...
@@ -216,13 +216,13 @@ response :
 {
     "a465b0d7-05e9-4a86-bdaf-0f7ee09b4137": {
         "id": "a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
-        "titre": "CDD Agent d'entretien - Inetum",
+        "titre": "CDD Agent d'entretien - KCD",
         "entreprise": {
             "id": "202789de-ef8c-4dc9-9c2c-69591daf9c56",
             "libelle": "Ha__la",
             "description": "Hallloha !",
             "numero": "17",
-            "rue": "RUE EDOUARD DELESALLE",
+            "rue": "RUE EDOUARD",
             "code_postal": 59800,
             "ville": "LILLE"
         },
@@ -231,6 +231,7 @@ response :
             "sigle": "CDD",
             "description": "CDD"
         },
+        "contact":"toto@gmail.com",
         "created_at": "1980-03-15",
         "end_at": "2030-03-15"
     }
@@ -246,7 +247,7 @@ response :
 {
     "a465b0d7-05e9-4a86-bdaf-0f7ee09b4137": {
         "id": "a465b0d7-05e9-4a86-bdaf-0f7ee09b4137",
-        "titre": "CDD Agent d'entretien - Inetum",
+        "titre": "CDD Agent d'entretien - PMA",
         "description": "Oula j'ai modifié",
         "created_at": "1980-03-15",
         "end_at": "2030-03-15",
@@ -255,7 +256,7 @@ response :
             "libelle": "Ahyaya____la",
             "description": "TOTO",
             "numero": "17",
-            "rue": "RUE EDOUARD DELESALLE",
+            "rue": "RUE EDOUARD",
             "code_postal": 59800,
             "ville": "LILLE"
         },
